@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StarVault</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <div class="brand">
+          <div class="brand-mark">SV</div>
+          <div>
+            <h1>StarVault</h1>
+            <p>Personal data ownership</p>
+          </div>
+        </div>
+        <nav class="nav-list">
+          <button class="nav-item active" data-view="dashboard">Dashboard</button>
+          <button class="nav-item" data-view="vault">Vault</button>
+          <button class="nav-item" data-view="identity">Identity</button>
+          <button class="nav-item" data-view="permissions">Permissions</button>
+          <button class="nav-item" data-view="imports">Imports</button>
+          <button class="nav-item" data-view="scanner">AI Scanner</button>
+          <button class="nav-item" data-view="logs">Access Logs</button>
+        </nav>
+        <div class="sidebar-footer">
+          <p class="eyebrow">Positioning</p>
+          <p>Operating system for personal data ownership in the AI age.</p>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Launch MVP</p>
+            <h2>Your digital life in one secure vault.</h2>
+          </div>
+          <div class="topbar-actions">
+            <span id="lock-status" class="status-pill locked">Locked</span>
+            <button id="lock-button" class="icon-button" title="Lock vault" aria-label="Lock vault">Lock</button>
+          </div>
+        </header>
+
+        <section id="unlock-panel" class="unlock-panel">
+          <div class="unlock-copy">
+            <p class="eyebrow">Secure encrypted storage</p>
+            <h2>Unlock your StarVault</h2>
+            <p>
+              Create a local encrypted vault with a passphrase. This prototype stores encrypted data in your browser so the MVP can be tested without a server.
+            </p>
+          </div>
+          <form id="unlock-form" class="unlock-form">
+            <label for="passphrase">Vault passphrase</label>
+            <input id="passphrase" type="password" minlength="8" placeholder="Minimum 8 characters" autocomplete="current-password" required />
+            <button type="submit">Unlock vault</button>
+            <p id="unlock-error" class="form-note error" role="alert"></p>
+          </form>
+        </section>
+
+        <section id="app-content" class="content hidden">
+          <section class="view active" id="dashboard">
+            <div class="metric-grid">
+              <article class="metric">
+                <span>Privacy Score</span>
+                <strong id="privacy-score">86</strong>
+                <p>Based on exposed fields, risky permissions, and recent access.</p>
+              </article>
+              <article class="metric">
+                <span>Vault Items</span>
+                <strong id="vault-count">0</strong>
+                <p>Encrypted records stored in your personal vault.</p>
+              </article>
+              <article class="metric">
+                <span>Active Permissions</span>
+                <strong id="permission-count">0</strong>
+                <p>Apps and companies with current data access.</p>
+              </article>
+              <article class="metric">
+                <span>Risk Alerts</span>
+                <strong id="risk-count">0</strong>
+                <p>Scanner findings that deserve attention.</p>
+              </article>
+            </div>
+
+            <div class="split-layout">
+              <section class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <p class="eyebrow">Immediate hook</p>
+                    <h3>Who can access your data?</h3>
+                  </div>
+                  <button class="secondary-button" data-view-jump="permissions">Review</button>
+                </div>
+                <div id="permission-preview" class="stack-list"></div>
+              </section>
+              <section class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <p class="eyebrow">AI privacy scanner</p>
+                    <h3>Latest findings</h3>
+                  </div>
+                  <button class="secondary-button" data-view-jump="scanner">Scan</button>
+                </div>
+                <div id="finding-preview" class="stack-list"></div>
+              </section>
+            </div>
+          </section>
+
+          <section class="view" id="vault">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Encrypted storage</p>
+                <h3>Secure personal records</h3>
+              </div>
+            </div>
+            <form id="vault-form" class="entry-form">
+              <input name="title" placeholder="Record title" required />
+              <select name="category" aria-label="Category">
+                <option>Identity</option>
+                <option>Health</option>
+                <option>Finance</option>
+                <option>Employment</option>
+                <option>AI Training</option>
+              </select>
+              <textarea name="details" placeholder="Private details, IDs, notes, or access instructions" required></textarea>
+              <button type="submit">Add encrypted record</button>
+            </form>
+            <div id="vault-list" class="record-grid"></div>
+          </section>
+
+          <section class="view" id="identity">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Identity vault</p>
+                <h3>Verified profile</h3>
+              </div>
+            </div>
+            <form id="identity-form" class="profile-grid">
+              <label>Full name<input name="name" /></label>
+              <label>Email<input name="email" type="email" /></label>
+              <label>Phone<input name="phone" /></label>
+              <label>Country<input name="country" /></label>
+              <label>Government ID status<select name="idStatus"><option>Not verified</option><option>Pending</option><option>Verified</option></select></label>
+              <label>Preferred consent term<select name="consentTerm"><option>Ask every time</option><option>30 days</option><option>90 days</option><option>1 year</option></select></label>
+              <button type="submit">Save identity</button>
+            </form>
+          </section>
+
+          <section class="view" id="permissions">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Permission dashboard</p>
+                <h3>Control company access</h3>
+              </div>
+              <button id="seed-permissions" class="secondary-button">Load sample requests</button>
+            </div>
+            <div id="permission-list" class="permission-list"></div>
+          </section>
+
+          <section class="view" id="imports">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Data import from apps</p>
+                <h3>Bring your data into StarVault</h3>
+              </div>
+            </div>
+            <div class="connector-grid">
+              <button class="connector" data-source="Google Takeout">Google Takeout</button>
+              <button class="connector" data-source="Apple Health">Apple Health</button>
+              <button class="connector" data-source="Bank CSV">Bank CSV</button>
+              <button class="connector" data-source="LinkedIn Export">LinkedIn Export</button>
+              <button class="connector" data-source="AI Chat Export">AI Chat Export</button>
+              <button class="connector" data-source="Manual Upload">Manual Upload</button>
+            </div>
+            <div id="import-list" class="timeline"></div>
+          </section>
+
+          <section class="view" id="scanner">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">AI privacy scanner</p>
+                <h3>Find sensitive exposure</h3>
+              </div>
+              <button id="run-scan" class="primary-button">Run privacy scan</button>
+            </div>
+            <div id="scanner-list" class="finding-grid"></div>
+          </section>
+
+          <section class="view" id="logs">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Audit trails</p>
+                <h3>Access logs</h3>
+              </div>
+            </div>
+            <div id="log-list" class="timeline"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
