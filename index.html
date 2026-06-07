@@ -21,6 +21,7 @@
           <button class="nav-item" data-view="vault">Vault</button>
           <button class="nav-item" data-view="identity">Identity</button>
           <button class="nav-item" data-view="permissions">Permissions</button>
+          <button class="nav-item" data-view="network">Network Layer</button>
           <button class="nav-item" data-view="surveillance">Surveillance Map</button>
           <button class="nav-item" data-view="imports">Imports</button>
           <button class="nav-item" data-view="scanner">AI Scanner</button>
@@ -28,15 +29,15 @@
         </nav>
         <div class="sidebar-footer">
           <p class="eyebrow">Positioning</p>
-          <p>Operating system for personal data ownership in the AI age.</p>
+          <p>Personal data permission network for the AI age.</p>
         </div>
       </aside>
 
       <main class="main">
         <header class="topbar">
           <div>
-            <p class="eyebrow">Launch MVP</p>
-            <h2>Your digital life in one secure vault.</h2>
+            <p class="eyebrow">Network MVP</p>
+            <h2>The consent layer between people and data-hungry systems.</h2>
           </div>
           <div class="topbar-actions">
             <span id="lock-status" class="status-pill locked">Locked</span>
@@ -88,14 +89,19 @@
                 <strong id="extraction-count">0</strong>
                 <p>Requests flagged as data extraction or profiling.</p>
               </article>
+              <article class="metric">
+                <span>Network Tokens</span>
+                <strong id="token-count">0</strong>
+                <p>Scoped, revocable grants issued through StarVault.</p>
+              </article>
             </div>
 
             <section class="resistance-banner">
               <div>
-                <p class="eyebrow">Against surveillance capitalism</p>
-                <h3>Turn invisible extraction into visible consent.</h3>
+                <p class="eyebrow">Personal data network layer</p>
+                <h3>Route data access through consent, scope, expiry, and audit.</h3>
               </div>
-              <button class="secondary-button" data-view-jump="surveillance">Open map</button>
+              <button class="secondary-button" data-view-jump="network">Open network</button>
             </section>
 
             <div class="split-layout">
@@ -175,6 +181,69 @@
               <p>New company requests stay pending until the user approves a purpose, scope, expiry date, and revocation right.</p>
             </div>
             <div id="permission-list" class="permission-list"></div>
+          </section>
+
+          <section class="view" id="network">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">StarVault Network</p>
+                <h3>Permission gateway for apps, AI systems, and institutions</h3>
+              </div>
+              <button id="simulate-api-request" class="primary-button">Simulate API request</button>
+            </div>
+
+            <div class="network-hero">
+              <div class="network-node">
+                <span>User Vault Node</span>
+                <strong id="node-id">SVN-local</strong>
+                <p>Encrypted client-side node that mediates identity facts, records, consent, tokens, and audit logs.</p>
+              </div>
+              <div class="network-path" aria-hidden="true">
+                <span>Apps</span>
+                <i></i>
+                <span>Consent API</span>
+                <i></i>
+                <span>Vault Node</span>
+              </div>
+            </div>
+
+            <div class="network-grid">
+              <section class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <p class="eyebrow">Consent API gateway</p>
+                    <h3>Incoming access requests</h3>
+                  </div>
+                </div>
+                <div id="api-request-list" class="stack-list"></div>
+              </section>
+
+              <section class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <p class="eyebrow">Scoped token layer</p>
+                    <h3>Revocable access grants</h3>
+                  </div>
+                </div>
+                <div id="token-list" class="stack-list"></div>
+              </section>
+
+              <section class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <p class="eyebrow">API contract</p>
+                    <h3>Network primitives</h3>
+                  </div>
+                </div>
+                <div class="api-contract">
+                  <code>POST /consent/request</code>
+                  <code>POST /tokens/issue</code>
+                  <code>POST /tokens/revoke</code>
+                  <code>GET /audit/events</code>
+                  <code>POST /proofs/identity</code>
+                </div>
+              </section>
+            </div>
           </section>
 
           <section class="view" id="surveillance">

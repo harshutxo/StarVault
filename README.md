@@ -1,10 +1,10 @@
 # StarVault
 
-StarVault is a launch MVP for a personal data vault: secure local encrypted storage, identity vault, permission dashboard, access logs, data imports, revoke controls, and an AI privacy scanner.
+StarVault is a launch MVP for a personal data permission network: secure local encrypted storage, identity vault, consent API gateway, scoped access tokens, permission dashboard, access logs, data imports, revoke controls, surveillance mapping, and an AI privacy scanner.
 
 Positioning:
 
-> StarVault is the operating system for personal data ownership in the AI age.
+> StarVault is the network layer for human consent in the AI economy.
 
 ## MVP scope
 
@@ -18,6 +18,9 @@ Positioning:
 - Surveillance map for data broker exposure and extraction attempts
 - Deny-by-default consent policy with purpose, scope, expiry, benefit, and revocation tracking
 - Data broker opt-out and erasure request queue
+- Local StarVault Network console for consent API requests
+- Scoped, revocable network access-token simulation
+- Network primitives for consent requests, token issue/revoke, audit events, and identity proofs
 
 ## Run locally
 
@@ -38,6 +41,10 @@ The consumer MVP solves the immediate trust problem: users get value before any 
 ### Phase 2: Consent Infrastructure API
 
 Companies can request permissioned access with audit trails for health apps, finance apps, AI companies, and hiring platforms.
+
+### Phase 2.5: StarVault Network Layer
+
+StarVault becomes a gateway between users and external data requesters. Apps submit consent requests, users issue scoped tokens, and every grant remains time-limited, auditable, and revocable.
 
 ### Phase 3: Monetization Layer
 

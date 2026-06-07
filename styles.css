@@ -302,7 +302,7 @@ textarea:focus {
 
 .metric-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(150px, 1fr));
+  grid-template-columns: repeat(6, minmax(140px, 1fr));
   gap: 16px;
 }
 
@@ -313,7 +313,9 @@ textarea:focus {
 .finding-card,
 .resistance-banner,
 .policy-panel,
-.right-card {
+.right-card,
+.network-hero,
+.network-node {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel);
@@ -349,6 +351,95 @@ textarea:focus {
   margin: 0;
   color: var(--muted);
   line-height: 1.5;
+}
+
+.network-hero {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.8fr) minmax(320px, 1.2fr);
+  gap: 18px;
+  padding: 20px;
+  background: #f4fbfa;
+  border-color: #b8d8d4;
+}
+
+.network-node {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+  box-shadow: none;
+}
+
+.network-node span,
+.api-contract code {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.network-node strong {
+  font-size: 30px;
+}
+
+.network-node p,
+.network-item p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.network-path {
+  display: grid;
+  grid-template-columns: max-content 1fr max-content 1fr max-content;
+  align-items: center;
+  gap: 12px;
+  min-height: 112px;
+}
+
+.network-path span {
+  display: grid;
+  place-items: center;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid #abd8ca;
+  border-radius: 8px;
+  background: #ffffff;
+  font-weight: 900;
+}
+
+.network-path i {
+  height: 2px;
+  background: #84bbb3;
+}
+
+.network-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(280px, 1fr);
+  gap: 18px;
+}
+
+.network-grid .panel:last-child {
+  grid-column: 1 / -1;
+}
+
+.network-item {
+  align-items: flex-start;
+}
+
+.api-contract {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(150px, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.api-contract code {
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfb;
+  color: var(--ink);
 }
 
 .resistance-banner {
@@ -555,6 +646,8 @@ textarea:focus {
   .metric-grid,
   .split-layout,
   .map-grid,
+  .network-grid,
+  .network-hero,
   .record-grid,
   .finding-grid,
   .permission-list,
@@ -591,8 +684,21 @@ textarea:focus {
   .profile-grid,
   .entry-form,
   .map-grid,
+  .network-grid,
+  .network-hero,
   .split-layout {
     grid-template-columns: 1fr;
+  }
+
+  .network-path,
+  .api-contract {
+    grid-template-columns: 1fr;
+  }
+
+  .network-path i {
+    min-height: 18px;
+    width: 2px;
+    justify-self: center;
   }
 
   .nav-list {

@@ -61,6 +61,43 @@ const seedState = {
       expiresAt: "2026-07-05"
     }
   ],
+  network: {
+    nodeId: `SVN-${crypto.randomUUID().slice(0, 8)}`,
+    apiRequests: [
+      {
+        id: crypto.randomUUID(),
+        requester: "TrialMed AI",
+        category: "AI health research",
+        scope: "Anonymized sleep trend proof",
+        purpose: "Research cohort matching",
+        status: "Pending",
+        risk: "Medium",
+        expiryHours: 24,
+        tokenId: null
+      },
+      {
+        id: crypto.randomUUID(),
+        requester: "HireSignal",
+        category: "Hiring verification",
+        scope: "Identity and employment proof",
+        purpose: "Candidate verification",
+        status: "Pending",
+        risk: "Low",
+        expiryHours: 72,
+        tokenId: null
+      }
+    ],
+    tokens: [
+      {
+        id: `svt_${crypto.randomUUID().slice(0, 12)}`,
+        requester: "Wellnest Health",
+        scope: "Fitness trend summary",
+        status: "Active",
+        issuedAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString()
+      }
+    ]
+  },
   brokers: [
     {
       id: crypto.randomUUID(),
@@ -171,7 +208,8 @@ function privacyScore() {
   const activeHighRisk = state.permissions.filter((item) => item.status === "Active" && item.risk === "High").length;
   const findings = state.findings.filter((item) => item.risk !== "Low").length;
   const brokerRisk = getBrokers().filter((item) => item.risk === "High" && item.status !== "Suppressed").length;
-  const score = 96 - activeHighRisk * 16 - findings * 7 - brokerRisk * 6 - Math.max(0, state.permissions.length - 4) * 3;
+  const activeTokens = getTokens().filter((item) => item.status === "Active").length;
+  const score = 96 - activeHighRisk * 16 - findings * 7 - brokerRisk * 6 - Math.max(0, activeTokens - 3) * 3 - Math.max(0, state.permissions.length - 4) * 3;
   return Math.max(35, score);
 }
 
@@ -182,10 +220,12 @@ function render() {
   $("#permission-count").textContent = state.permissions.filter((item) => item.status === "Active").length;
   $("#risk-count").textContent = state.findings.filter((item) => item.risk !== "Low").length;
   $("#extraction-count").textContent = extractionAttempts().length;
+  $("#token-count").textContent = getTokens().filter((item) => item.status === "Active").length;
 
   renderVault();
   renderIdentity();
   renderPermissions();
+  renderNetwork();
   renderSurveillance();
   renderImports();
   renderScanner();
@@ -194,12 +234,24 @@ function render() {
 }
 
 function migrateState() {
+  state.network ??= structuredClone(seedState.network);
+  state.network.nodeId ??= `SVN-${crypto.randomUUID().slice(0, 8)}`;
+  state.network.apiRequests ??= [];
+  state.network.tokens ??= [];
   state.brokers ??= structuredClone(seedState.brokers);
   state.erasureRequests ??= [];
   state.permissions.forEach((permission) => {
     permission.extractionType ??= permission.risk === "High" ? "data extraction" : "verification";
     permission.userBenefit ??= permission.risk === "High" ? "None disclosed" : "Service access";
   });
+}
+
+function getNetwork() {
+  return state.network;
+}
+
+function getTokens() {
+  return getNetwork().tokens;
 }
 
 function getBrokers() {
@@ -281,6 +333,69 @@ function renderPermissions() {
       </div>
     </article>
   `).join("");
+}
+
+function renderNetwork() {
+  $("#node-id").textContent = getNetwork().nodeId;
+  $("#api-request-list").innerHTML = getNetwork().apiRequests.length
+    ? getNetwork().apiRequests.map((request) => `
+      <div class="stack-item network-item">
+        <div>
+          <strong>${request.requester}</strong>
+          <div class="permission-meta">${request.category} · ${request.status}</div>
+          <p>${request.scope}</p>
+          <p><strong>Purpose:</strong> ${request.purpose}</p>
+        </div>
+        <div class="broker-actions">
+          <strong class="${riskClass(request.risk)}">${request.risk}</strong>
+          ${request.status === "Pending" ? `<button class="approve-button" data-issue-token="${request.id}">Issue token</button>` : ""}
+          ${request.status !== "Denied" && request.status !== "Token issued" ? `<button class="danger-button" data-deny-request="${request.id}">Deny</button>` : ""}
+        </div>
+      </div>
+    `).join("")
+    : `<div class="stack-item"><strong>No pending API requests</strong><span>Gateway idle</span></div>`;
+
+  $("#token-list").innerHTML = getTokens().length
+    ? getTokens().map((token) => `
+      <div class="stack-item network-item">
+        <div>
+          <strong>${token.id}</strong>
+          <div class="permission-meta">${token.requester} · ${token.status}</div>
+          <p>${token.scope}</p>
+          <p><strong>Expires:</strong> ${new Date(token.expiresAt).toLocaleString()}</p>
+        </div>
+        <div class="broker-actions">
+          <button class="danger-button" data-revoke-token="${token.id}">${token.status === "Revoked" ? "Revoked" : "Revoke"}</button>
+        </div>
+      </div>
+    `).join("")
+    : `<div class="stack-item"><strong>No network tokens</strong><span>Issue a scoped grant</span></div>`;
+}
+
+function issueNetworkToken(request) {
+  const token = {
+    id: `svt_${crypto.randomUUID().slice(0, 12)}`,
+    requester: request.requester,
+    scope: request.scope,
+    status: "Active",
+    issuedAt: new Date().toISOString(),
+    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * request.expiryHours).toISOString()
+  };
+  request.status = "Token issued";
+  request.tokenId = token.id;
+  getTokens().unshift(token);
+  state.permissions.unshift({
+    id: crypto.randomUUID(),
+    company: request.requester,
+    scope: request.scope,
+    purpose: request.purpose,
+    status: "Active",
+    risk: request.risk,
+    extractionType: request.category,
+    userBenefit: "Network-mediated access with revocation",
+    expiresAt: token.expiresAt.slice(0, 10)
+  });
+  return token;
 }
 
 function renderSurveillance() {
@@ -481,6 +596,29 @@ document.addEventListener("click", async (event) => {
     await persist(`Approved permission: ${permission.company}`);
   }
 
+  if (target.dataset.issueToken) {
+    const request = getNetwork().apiRequests.find((item) => item.id === target.dataset.issueToken);
+    const token = issueNetworkToken(request);
+    await persist(`Issued scoped network token: ${token.id}`);
+  }
+
+  if (target.dataset.denyRequest) {
+    const request = getNetwork().apiRequests.find((item) => item.id === target.dataset.denyRequest);
+    request.status = "Denied";
+    await persist(`Denied network request: ${request.requester}`);
+  }
+
+  if (target.dataset.revokeToken) {
+    const token = getTokens().find((item) => item.id === target.dataset.revokeToken);
+    token.status = "Revoked";
+    state.permissions
+      .filter((permission) => permission.company === token.requester && permission.scope === token.scope)
+      .forEach((permission) => {
+        permission.status = "Revoked";
+      });
+    await persist(`Revoked network token: ${token.id}`);
+  }
+
   if (target.dataset.suppressBroker) {
     const broker = getBrokers().find((item) => item.id === target.dataset.suppressBroker);
     broker.status = "Suppressed";
@@ -556,4 +694,40 @@ $("#generate-erasure").addEventListener("click", async () => {
     broker.status = "Opt-out drafted";
   });
   await persist("Generated data broker erasure requests");
+});
+
+$("#simulate-api-request").addEventListener("click", async () => {
+  const samples = [
+    {
+      requester: "ModelForge Labs",
+      category: "AI model training",
+      scope: "Writing samples and preference signals",
+      purpose: "Training dataset licensing request",
+      risk: "High",
+      expiryHours: 12
+    },
+    {
+      requester: "Credora Finance",
+      category: "Financial verification",
+      scope: "Income proof without transaction history",
+      purpose: "Loan underwriting",
+      risk: "Low",
+      expiryHours: 48
+    },
+    {
+      requester: "Civic Research Cloud",
+      category: "Public-interest research",
+      scope: "Anonymized mobility pattern proof",
+      purpose: "Urban planning study",
+      risk: "Medium",
+      expiryHours: 24
+    }
+  ];
+  getNetwork().apiRequests.unshift({
+    id: crypto.randomUUID(),
+    status: "Pending",
+    tokenId: null,
+    ...samples[Math.floor(Math.random() * samples.length)]
+  });
+  await persist("Received network API consent request");
 });
