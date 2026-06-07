@@ -21,6 +21,7 @@
           <button class="nav-item" data-view="vault">Vault</button>
           <button class="nav-item" data-view="identity">Identity</button>
           <button class="nav-item" data-view="permissions">Permissions</button>
+          <button class="nav-item" data-view="surveillance">Surveillance Map</button>
           <button class="nav-item" data-view="imports">Imports</button>
           <button class="nav-item" data-view="scanner">AI Scanner</button>
           <button class="nav-item" data-view="logs">Access Logs</button>
@@ -82,7 +83,20 @@
                 <strong id="risk-count">0</strong>
                 <p>Scanner findings that deserve attention.</p>
               </article>
+              <article class="metric">
+                <span>Extraction Attempts</span>
+                <strong id="extraction-count">0</strong>
+                <p>Requests flagged as data extraction or profiling.</p>
+              </article>
             </div>
+
+            <section class="resistance-banner">
+              <div>
+                <p class="eyebrow">Against surveillance capitalism</p>
+                <h3>Turn invisible extraction into visible consent.</h3>
+              </div>
+              <button class="secondary-button" data-view-jump="surveillance">Open map</button>
+            </section>
 
             <div class="split-layout">
               <section class="panel">
@@ -152,11 +166,45 @@
             <div class="section-heading">
               <div>
                 <p class="eyebrow">Permission dashboard</p>
-                <h3>Control company access</h3>
+                <h3>Deny by default, approve by consent</h3>
               </div>
               <button id="seed-permissions" class="secondary-button">Load sample requests</button>
             </div>
+            <div class="policy-panel">
+              <strong>Consent policy</strong>
+              <p>New company requests stay pending until the user approves a purpose, scope, expiry date, and revocation right.</p>
+            </div>
             <div id="permission-list" class="permission-list"></div>
+          </section>
+
+          <section class="view" id="surveillance">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Surveillance map</p>
+                <h3>See which actors profit from your data trail</h3>
+              </div>
+              <button id="generate-erasure" class="primary-button">Generate erasure requests</button>
+            </div>
+            <div class="map-grid">
+              <section class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <p class="eyebrow">Data broker exposure</p>
+                    <h3>Known extraction surfaces</h3>
+                  </div>
+                </div>
+                <div id="broker-list" class="stack-list"></div>
+              </section>
+              <section class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <p class="eyebrow">Consent ledger</p>
+                    <h3>User-controlled rights</h3>
+                  </div>
+                </div>
+                <div id="rights-list" class="rights-list"></div>
+              </section>
+            </div>
           </section>
 
           <section class="view" id="imports">

@@ -302,7 +302,7 @@ textarea:focus {
 
 .metric-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(160px, 1fr));
+  grid-template-columns: repeat(5, minmax(150px, 1fr));
   gap: 16px;
 }
 
@@ -310,7 +310,10 @@ textarea:focus {
 .panel,
 .record-card,
 .permission-card,
-.finding-card {
+.finding-card,
+.resistance-banner,
+.policy-panel,
+.right-card {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel);
@@ -339,10 +342,28 @@ textarea:focus {
 .metric p,
 .permission-card p,
 .record-card p,
-.finding-card p {
+.finding-card p,
+.right-card p,
+.policy-panel p,
+.broker-item p {
   margin: 0;
   color: var(--muted);
   line-height: 1.5;
+}
+
+.resistance-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 20px;
+  border-color: #b8d8d4;
+  background: #eef9f6;
+}
+
+.resistance-banner h3 {
+  margin: 4px 0 0;
+  font-size: 24px;
 }
 
 .split-layout {
@@ -362,6 +383,38 @@ textarea:focus {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+}
+
+.policy-panel {
+  padding: 16px 18px;
+  border-color: #cfd9e2;
+}
+
+.map-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.25fr) minmax(260px, 0.75fr);
+  gap: 18px;
+}
+
+.broker-item {
+  align-items: flex-start;
+}
+
+.broker-actions {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+  min-width: 100px;
+}
+
+.rights-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.right-card {
+  padding: 14px;
 }
 
 .panel h3,
@@ -501,6 +554,7 @@ textarea:focus {
 
   .metric-grid,
   .split-layout,
+  .map-grid,
   .record-grid,
   .finding-grid,
   .permission-list,
@@ -536,6 +590,7 @@ textarea:focus {
   .connector-grid,
   .profile-grid,
   .entry-form,
+  .map-grid,
   .split-layout {
     grid-template-columns: 1fr;
   }

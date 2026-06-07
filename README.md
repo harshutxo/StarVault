@@ -15,6 +15,9 @@ Positioning:
 - Local access logs and import history
 - Demo import connectors for common app export sources
 - AI privacy scanner prototype for sensitive data and risky permissions
+- Surveillance map for data broker exposure and extraction attempts
+- Deny-by-default consent policy with purpose, scope, expiry, benefit, and revocation tracking
+- Data broker opt-out and erasure request queue
 
 ## Run locally
 

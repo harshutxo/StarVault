@@ -34,6 +34,8 @@ const seedState = {
       purpose: "Personalized health recommendations",
       status: "Active",
       risk: "Medium",
+      extractionType: "behavioral profiling",
+      userBenefit: "Health insights",
       expiresAt: "2026-08-21"
     },
     {
@@ -43,6 +45,8 @@ const seedState = {
       purpose: "Loan eligibility checks",
       status: "Pending",
       risk: "Low",
+      extractionType: "verification",
+      userBenefit: "Credit application",
       expiresAt: "2026-06-20"
     },
     {
@@ -52,9 +56,38 @@ const seedState = {
       purpose: "AI training permission request",
       status: "Active",
       risk: "High",
+      extractionType: "AI model training",
+      userBenefit: "None disclosed",
       expiresAt: "2026-07-05"
     }
   ],
+  brokers: [
+    {
+      id: crypto.randomUUID(),
+      name: "AdGraph Exchange",
+      category: "Ad-tech profile broker",
+      data: "Location, device IDs, browsing interests",
+      status: "Unverified",
+      risk: "High"
+    },
+    {
+      id: crypto.randomUUID(),
+      name: "PeopleSearch Index",
+      category: "Identity lookup site",
+      data: "Address, phone, relatives, public records",
+      status: "Opt-out needed",
+      risk: "High"
+    },
+    {
+      id: crypto.randomUUID(),
+      name: "Retail Signal Co",
+      category: "Purchase analytics network",
+      data: "Shopping behavior and loyalty signals",
+      status: "Monitoring",
+      risk: "Medium"
+    }
+  ],
+  erasureRequests: [],
   imports: [],
   findings: [],
   logs: []
@@ -137,23 +170,48 @@ function riskClass(risk) {
 function privacyScore() {
   const activeHighRisk = state.permissions.filter((item) => item.status === "Active" && item.risk === "High").length;
   const findings = state.findings.filter((item) => item.risk !== "Low").length;
-  const score = 96 - activeHighRisk * 16 - findings * 7 - Math.max(0, state.permissions.length - 4) * 3;
+  const brokerRisk = getBrokers().filter((item) => item.risk === "High" && item.status !== "Suppressed").length;
+  const score = 96 - activeHighRisk * 16 - findings * 7 - brokerRisk * 6 - Math.max(0, state.permissions.length - 4) * 3;
   return Math.max(35, score);
 }
 
 function render() {
+  migrateState();
   $("#privacy-score").textContent = privacyScore();
   $("#vault-count").textContent = state.vault.length;
   $("#permission-count").textContent = state.permissions.filter((item) => item.status === "Active").length;
   $("#risk-count").textContent = state.findings.filter((item) => item.risk !== "Low").length;
+  $("#extraction-count").textContent = extractionAttempts().length;
 
   renderVault();
   renderIdentity();
   renderPermissions();
+  renderSurveillance();
   renderImports();
   renderScanner();
   renderLogs();
   renderDashboard();
+}
+
+function migrateState() {
+  state.brokers ??= structuredClone(seedState.brokers);
+  state.erasureRequests ??= [];
+  state.permissions.forEach((permission) => {
+    permission.extractionType ??= permission.risk === "High" ? "data extraction" : "verification";
+    permission.userBenefit ??= permission.risk === "High" ? "None disclosed" : "Service access";
+  });
+}
+
+function getBrokers() {
+  return state.brokers ?? [];
+}
+
+function extractionAttempts() {
+  return state.permissions.filter((item) => {
+    const noBenefit = item.userBenefit === "None disclosed";
+    const extraction = /training|profiling|advertising|extraction/i.test(item.extractionType);
+    return item.status !== "Revoked" && (item.risk === "High" || noBenefit || extraction);
+  });
 }
 
 function renderDashboard() {
@@ -215,10 +273,42 @@ function renderPermissions() {
       </div>
       <p><strong>Scope:</strong> ${item.scope}</p>
       <p><strong>Purpose:</strong> ${item.purpose}</p>
+      <p><strong>Extraction type:</strong> ${item.extractionType}</p>
+      <p><strong>User benefit:</strong> ${item.userBenefit}</p>
       <div class="card-actions">
         ${item.status !== "Active" ? `<button class="approve-button" data-approve="${item.id}">Approve</button>` : ""}
         ${item.status !== "Revoked" ? `<button class="danger-button" data-revoke="${item.id}">Revoke</button>` : ""}
       </div>
+    </article>
+  `).join("");
+}
+
+function renderSurveillance() {
+  $("#broker-list").innerHTML = getBrokers().map((broker) => `
+    <div class="stack-item broker-item">
+      <div>
+        <strong>${broker.name}</strong>
+        <div class="permission-meta">${broker.category}</div>
+        <p>${broker.data}</p>
+      </div>
+      <div class="broker-actions">
+        <strong class="${riskClass(broker.risk)}">${broker.risk}</strong>
+        <button class="danger-button" data-suppress-broker="${broker.id}">${broker.status === "Suppressed" ? "Suppressed" : "Opt out"}</button>
+      </div>
+    </div>
+  `).join("");
+
+  const rights = [
+    ["Deny by default", "Companies cannot access sensitive vault data until a request is explicitly approved."],
+    ["Purpose limitation", "Every permission must name why data is requested and what benefit the user receives."],
+    ["One-click revoke", "Active permissions can be withdrawn and recorded in the audit trail."],
+    ["Erasure queue", `${state.erasureRequests.length} broker opt-out or deletion requests prepared.`]
+  ];
+
+  $("#rights-list").innerHTML = rights.map(([title, body]) => `
+    <article class="right-card">
+      <strong>${title}</strong>
+      <p>${body}</p>
     </article>
   `).join("");
 }
@@ -292,6 +382,26 @@ function scanPrivacy() {
         title: "High-risk active permission",
         source: permission.company,
         description: "Review this permission and revoke it if the purpose no longer serves you."
+      });
+    }
+    if (permission.status !== "Revoked" && permission.userBenefit === "None disclosed") {
+      findings.push({
+        id: crypto.randomUUID(),
+        risk: "High",
+        title: "Extraction without user benefit",
+        source: permission.company,
+        description: "This request asks for valuable personal data without disclosing a meaningful benefit to the user."
+      });
+    }
+  });
+  getBrokers().forEach((broker) => {
+    if (broker.status !== "Suppressed" && broker.risk === "High") {
+      findings.push({
+        id: crypto.randomUUID(),
+        risk: "High",
+        title: "Possible broker exposure",
+        source: broker.name,
+        description: `${broker.category} may expose ${broker.data.toLowerCase()}. Prepare an opt-out or deletion request.`
       });
     }
   });
@@ -371,6 +481,18 @@ document.addEventListener("click", async (event) => {
     await persist(`Approved permission: ${permission.company}`);
   }
 
+  if (target.dataset.suppressBroker) {
+    const broker = getBrokers().find((item) => item.id === target.dataset.suppressBroker);
+    broker.status = "Suppressed";
+    state.erasureRequests.unshift({
+      id: crypto.randomUUID(),
+      target: broker.name,
+      data: broker.data,
+      at: new Date().toISOString()
+    });
+    await persist(`Prepared broker opt-out request: ${broker.name}`);
+  }
+
   if (target.classList.contains("connector")) {
     state.imports.unshift({
       id: crypto.randomUUID(),
@@ -411,6 +533,8 @@ $("#seed-permissions").addEventListener("click", async () => {
     purpose: "Hiring platform verification",
     status: "Pending",
     risk: "Medium",
+    extractionType: "employment screening",
+    userBenefit: "Job application verification",
     expiresAt: "2026-07-21"
   });
   await persist("Loaded sample B2B consent request");
@@ -419,4 +543,17 @@ $("#seed-permissions").addEventListener("click", async () => {
 $("#run-scan").addEventListener("click", async () => {
   scanPrivacy();
   await persist("Ran AI privacy scanner");
+});
+
+$("#generate-erasure").addEventListener("click", async () => {
+  getBrokers().filter((broker) => broker.status !== "Suppressed").forEach((broker) => {
+    state.erasureRequests.unshift({
+      id: crypto.randomUUID(),
+      target: broker.name,
+      data: broker.data,
+      at: new Date().toISOString()
+    });
+    broker.status = "Opt-out drafted";
+  });
+  await persist("Generated data broker erasure requests");
 });
