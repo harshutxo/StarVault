@@ -140,6 +140,98 @@ const seedState = {
       { id: "SVIP-0003", title: "Audit event schema", status: "Draft" }
     ]
   },
+  roadmap: {
+    phases: [
+      {
+        phase: "Phase 1",
+        title: "Core Protocol MVP",
+        status: "In progress",
+        objective: "Prove the local vault, consent, token, audit, and scanner loop works for normal users.",
+        milestones: [
+          { title: "Encrypted browser vault", status: "Done" },
+          { title: "Identity vault and resource registry", status: "In progress" },
+          { title: "Consent request and revoke flow", status: "In progress" },
+          { title: "Scoped token simulation", status: "Done" },
+          { title: "Audit log and privacy scanner", status: "Done" }
+        ],
+        metric: "Users can understand and control who accesses their data in under 3 minutes."
+      },
+      {
+        phase: "Phase 2",
+        title: "Developer Platform",
+        status: "Planned",
+        objective: "Let external apps request permission through a stable API and SDK.",
+        milestones: [
+          { title: "Application registry", status: "Planned" },
+          { title: "REST API gateway", status: "Planned" },
+          { title: "JavaScript SDK", status: "Planned" },
+          { title: "Webhook event system", status: "Planned" },
+          { title: "Developer docs and examples", status: "Planned" }
+        ],
+        metric: "First 3 partner apps can request, receive, and revoke scoped access."
+      },
+      {
+        phase: "Phase 3",
+        title: "AI Context Gateway",
+        status: "Planned",
+        objective: "Make AI agents ask for context through StarVault instead of silently ingesting data.",
+        milestones: [
+          { title: "AI agent identity", status: "Planned" },
+          { title: "Memory permission modes", status: "Planned" },
+          { title: "Session-only context grants", status: "Planned" },
+          { title: "AI training license requests", status: "Planned" }
+        ],
+        metric: "AI apps can request calendar, notes, documents, and memory with explicit consent."
+      },
+      {
+        phase: "Phase 4",
+        title: "Enterprise and Compliance",
+        status: "Planned",
+        objective: "Give regulated companies consent, audit, and policy infrastructure they can trust.",
+        milestones: [
+          { title: "Policy engine", status: "Planned" },
+          { title: "Compliance templates", status: "Planned" },
+          { title: "Trust score and app reputation", status: "Planned" },
+          { title: "SOC 2 readiness checklist", status: "Planned" }
+        ],
+        metric: "A healthcare, finance, or hiring pilot can pass internal privacy review."
+      },
+      {
+        phase: "Phase 5",
+        title: "Federation and Decentralization",
+        status: "Planned",
+        objective: "Allow multiple StarVault nodes and storage providers to interoperate.",
+        milestones: [
+          { title: "Discovery document", status: "Planned" },
+          { title: "Federation handshake", status: "Planned" },
+          { title: "DID and verifiable credential support", status: "Planned" },
+          { title: "Optional audit anchoring", status: "Optional" }
+        ],
+        metric: "Independent StarVault nodes can exchange consent and audit proofs."
+      },
+      {
+        phase: "Phase 6",
+        title: "Ecosystem and Marketplace",
+        status: "Planned",
+        objective: "Turn StarVault into a developer ecosystem with connectors, policies, and governance.",
+        milestones: [
+          { title: "Connector marketplace", status: "Planned" },
+          { title: "Policy marketplace", status: "Planned" },
+          { title: "SVIP governance workflow", status: "Planned" },
+          { title: "Reference SDKs for Python, Go, Swift, and Java", status: "Planned" }
+        ],
+        metric: "Developers can build on StarVault without the core team."
+      }
+    ],
+    sprints: [
+      ["Weeks 1-2", "Harden MVP state model, resource registry, and consent schema."],
+      ["Weeks 3-4", "Create mock REST API contract, SDK examples, and app registry screens."],
+      ["Weeks 5-6", "Build first partner demo: hiring or AI training consent workflow."],
+      ["Weeks 7-8", "Add policy rules, trust scoring, and erasure request exports."],
+      ["Weeks 9-10", "Write whitepaper, SVIP-0001, API docs, and developer quickstart."],
+      ["Weeks 11-12", "Recruit pilot users and 2-3 developer partners for feedback."]
+    ]
+  },
   brokers: [
     {
       id: crypto.randomUUID(),
@@ -268,6 +360,7 @@ function render() {
   renderIdentity();
   renderPermissions();
   renderProtocol();
+  renderRoadmap();
   renderNetwork();
   renderSurveillance();
   renderImports();
@@ -285,6 +378,9 @@ function migrateState() {
   state.protocol.layers ??= structuredClone(seedState.protocol.layers);
   state.protocol.components ??= structuredClone(seedState.protocol.components);
   state.protocol.svips ??= structuredClone(seedState.protocol.svips);
+  state.roadmap ??= structuredClone(seedState.roadmap);
+  state.roadmap.phases ??= structuredClone(seedState.roadmap.phases);
+  state.roadmap.sprints ??= structuredClone(seedState.roadmap.sprints);
   state.brokers ??= structuredClone(seedState.brokers);
   state.erasureRequests ??= [];
   state.permissions.forEach((permission) => {
@@ -303,6 +399,10 @@ function getTokens() {
 
 function getProtocol() {
   return state.protocol;
+}
+
+function getRoadmap() {
+  return state.roadmap;
 }
 
 function getBrokers() {
@@ -437,6 +537,57 @@ function registerProtocolRequest(request) {
     title: `${request.category} access profile for ${request.requester}`,
     status: "Draft"
   });
+}
+
+function renderRoadmap() {
+  const statusClass = (status) => `status-${status.toLowerCase().replace(/\s+/g, "-")}`;
+  $("#roadmap-phase-list").innerHTML = getRoadmap().phases.map((phase) => `
+    <article class="roadmap-card">
+      <div class="roadmap-head">
+        <div>
+          <span>${phase.phase}</span>
+          <h3>${phase.title}</h3>
+        </div>
+        <em class="${statusClass(phase.status)}">${phase.status}</em>
+      </div>
+      <p>${phase.objective}</p>
+      <div class="milestone-list">
+        ${phase.milestones.map((milestone) => `
+          <div class="milestone">
+            <strong>${milestone.title}</strong>
+            <em class="${statusClass(milestone.status)}">${milestone.status}</em>
+          </div>
+        `).join("")}
+      </div>
+      <div class="roadmap-metric">${phase.metric}</div>
+    </article>
+  `).join("");
+
+  $("#sprint-list").innerHTML = getRoadmap().sprints.map(([period, task]) => `
+    <div class="sprint-row">
+      <strong>${period}</strong>
+      <p>${task}</p>
+    </div>
+  `).join("");
+}
+
+function completeNextRoadmapMilestone() {
+  for (const phase of getRoadmap().phases) {
+    const milestone = phase.milestones.find((item) => item.status !== "Done" && item.status !== "Optional");
+    if (milestone) {
+      milestone.status = "Done";
+      const unfinished = phase.milestones.some((item) => item.status !== "Done" && item.status !== "Optional");
+      phase.status = unfinished ? "In progress" : "Done";
+      return `${phase.title}: ${milestone.title}`;
+    }
+  }
+  return "All roadmap milestones";
+}
+
+function syncRoadmapWithProtocol(layerName) {
+  const phase = getRoadmap().phases.find((item) => item.title === "Core Protocol MVP");
+  const match = phase?.milestones.find((milestone) => layerName.toLowerCase().includes(milestone.title.split(" ")[0].toLowerCase()));
+  if (match && match.status !== "Done") match.status = "In progress";
 }
 
 function renderNetwork() {
@@ -839,5 +990,11 @@ $("#simulate-api-request").addEventListener("click", async () => {
 
 $("#advance-protocol").addEventListener("click", async () => {
   const layerName = advanceNextProtocolLayer();
+  syncRoadmapWithProtocol(layerName);
   await persist(`Advanced protocol layer: ${layerName}`);
+});
+
+$("#complete-roadmap-item").addEventListener("click", async () => {
+  const milestone = completeNextRoadmapMilestone();
+  await persist(`Completed roadmap milestone: ${milestone}`);
 });

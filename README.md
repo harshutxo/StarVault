@@ -29,6 +29,7 @@ Positioning:
 
 - [Protocol architecture](docs/PROTOCOL.md)
 - [API draft](docs/API.md)
+- [Roadmap](docs/ROADMAP.md)
 - [SVIP-0001: Core Consent Request Format](docs/SVIP-0001.md)
 
 ## Run locally
