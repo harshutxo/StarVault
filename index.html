@@ -21,6 +21,7 @@
           <button class="nav-item" data-view="vault">Vault</button>
           <button class="nav-item" data-view="identity">Identity</button>
           <button class="nav-item" data-view="permissions">Permissions</button>
+          <button class="nav-item" data-view="protocol">Protocol</button>
           <button class="nav-item" data-view="network">Network Layer</button>
           <button class="nav-item" data-view="surveillance">Surveillance Map</button>
           <button class="nav-item" data-view="imports">Imports</button>
@@ -29,7 +30,7 @@
         </nav>
         <div class="sidebar-footer">
           <p class="eyebrow">Positioning</p>
-          <p>Personal data permission network for the AI age.</p>
+          <p>Open protocol plus platform for human consent in the AI age.</p>
         </div>
       </aside>
 
@@ -181,6 +182,46 @@
               <p>New company requests stay pending until the user approves a purpose, scope, expiry date, and revocation right.</p>
             </div>
             <div id="permission-list" class="permission-list"></div>
+          </section>
+
+          <section class="view" id="protocol">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">StarVault Protocol</p>
+                <h3>Open protocol, reference platform, developer ecosystem</h3>
+              </div>
+              <button id="advance-protocol" class="primary-button">Advance next layer</button>
+            </div>
+
+            <section class="protocol-stack">
+              <div class="stack-band top">Applications: AI, healthcare, finance, HR, social</div>
+              <div class="stack-band sdk">Developer SDKs: Python, JavaScript, Java, Go, Swift</div>
+              <div id="protocol-layer-list" class="layer-grid"></div>
+              <div class="stack-band storage">Storage providers: local, cloud, IPFS, enterprise</div>
+              <div class="stack-band internet">Internet</div>
+            </section>
+
+            <div class="network-grid">
+              <section class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <p class="eyebrow">Component status</p>
+                    <h3>From MVP to ecosystem</h3>
+                  </div>
+                </div>
+                <div id="component-matrix" class="component-table"></div>
+              </section>
+
+              <section class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <p class="eyebrow">Protocol governance</p>
+                    <h3>SVIP proposals</h3>
+                  </div>
+                </div>
+                <div id="svip-list" class="stack-list"></div>
+              </section>
+            </div>
           </section>
 
           <section class="view" id="network">

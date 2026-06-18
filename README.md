@@ -2,6 +2,8 @@
 
 StarVault is a launch MVP for a personal data permission network: secure local encrypted storage, identity vault, consent API gateway, scoped access tokens, permission dashboard, access logs, data imports, revoke controls, surveillance mapping, and an AI privacy scanner.
 
+The long-term architecture is a platform with an open protocol. The StarVault Protocol (SVP) defines how identity, consent, access, audit, discovery, federation, and governance work. The StarVault platform provides reference apps, SDKs, developer tooling, hosted services, and documentation that make adoption easier.
+
 Positioning:
 
 > StarVault is the network layer for human consent in the AI economy.
@@ -21,6 +23,13 @@ Positioning:
 - Local StarVault Network console for consent API requests
 - Scoped, revocable network access-token simulation
 - Network primitives for consent requests, token issue/revoke, audit events, and identity proofs
+- Protocol architecture console for SVP layers, component status, and governance proposals
+
+## Protocol docs
+
+- [Protocol architecture](docs/PROTOCOL.md)
+- [API draft](docs/API.md)
+- [SVIP-0001: Core Consent Request Format](docs/SVIP-0001.md)
 
 ## Run locally
 

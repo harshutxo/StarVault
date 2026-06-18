@@ -98,6 +98,48 @@ const seedState = {
       }
     ]
   },
+  protocol: {
+    layers: [
+      { name: "Identity Layer", priority: "Critical", status: "Started", api: "POST /users, POST /login, GET /me" },
+      { name: "Consent Layer", priority: "Critical", status: "Started", api: "POST /consent/request, POST /consent/approve, POST /consent/revoke" },
+      { name: "Access Gateway", priority: "Critical", status: "Started", api: "POST /tokens/issue, POST /tokens/revoke" },
+      { name: "Vault Layer", priority: "Critical", status: "Started", api: "POST /vault/upload, GET /vault/resource, DELETE /vault/resource" },
+      { name: "Policy Engine", priority: "High", status: "Planned", api: "POST /policies/evaluate" },
+      { name: "Audit Layer", priority: "Critical", status: "Started", api: "GET /audit/events" },
+      { name: "Discovery Layer", priority: "High", status: "Planned", api: "GET /.well-known/starvault" },
+      { name: "Federation Layer", priority: "Medium", status: "Planned", api: "POST /federation/handshake" },
+      { name: "Cryptography Layer", priority: "Critical", status: "Started", api: "POST /keys/rotate" },
+      { name: "Governance Layer", priority: "Medium", status: "Planned", api: "GET /svips" }
+    ],
+    components: [
+      ["Identity Layer", "Critical", "Started"],
+      ["Vault Layer", "Critical", "Started"],
+      ["Encryption Service", "Critical", "Started"],
+      ["Consent Engine", "Critical", "Started"],
+      ["Access Gateway", "Critical", "Started"],
+      ["Audit Layer", "Critical", "Started"],
+      ["Resource Registry", "Critical", "Planned"],
+      ["Database Layer", "Critical", "Planned"],
+      ["API Gateway", "High", "Planned"],
+      ["Developer SDK", "High", "Planned"],
+      ["Application Registry", "High", "Planned"],
+      ["Event Bus", "High", "Planned"],
+      ["DID Support", "Medium", "Planned"],
+      ["Distributed Storage", "Medium", "Planned"],
+      ["Federation", "Medium", "Planned"],
+      ["Blockchain Anchoring", "Low", "Optional"],
+      ["AI Context Gateway", "High", "Planned"],
+      ["Policy Engine", "High", "Planned"],
+      ["Compliance Engine", "High", "Planned"],
+      ["Governance", "Medium", "Planned"],
+      ["Documentation", "Critical", "Started"]
+    ],
+    svips: [
+      { id: "SVIP-0001", title: "Core consent request format", status: "Draft" },
+      { id: "SVIP-0002", title: "Scoped token claims", status: "Draft" },
+      { id: "SVIP-0003", title: "Audit event schema", status: "Draft" }
+    ]
+  },
   brokers: [
     {
       id: crypto.randomUUID(),
@@ -225,6 +267,7 @@ function render() {
   renderVault();
   renderIdentity();
   renderPermissions();
+  renderProtocol();
   renderNetwork();
   renderSurveillance();
   renderImports();
@@ -238,6 +281,10 @@ function migrateState() {
   state.network.nodeId ??= `SVN-${crypto.randomUUID().slice(0, 8)}`;
   state.network.apiRequests ??= [];
   state.network.tokens ??= [];
+  state.protocol ??= structuredClone(seedState.protocol);
+  state.protocol.layers ??= structuredClone(seedState.protocol.layers);
+  state.protocol.components ??= structuredClone(seedState.protocol.components);
+  state.protocol.svips ??= structuredClone(seedState.protocol.svips);
   state.brokers ??= structuredClone(seedState.brokers);
   state.erasureRequests ??= [];
   state.permissions.forEach((permission) => {
@@ -252,6 +299,10 @@ function getNetwork() {
 
 function getTokens() {
   return getNetwork().tokens;
+}
+
+function getProtocol() {
+  return state.protocol;
 }
 
 function getBrokers() {
@@ -333,6 +384,59 @@ function renderPermissions() {
       </div>
     </article>
   `).join("");
+}
+
+function renderProtocol() {
+  const priorityClass = (priority) => `priority-${priority.toLowerCase()}`;
+  const statusClass = (status) => `status-${status.toLowerCase()}`;
+
+  $("#protocol-layer-list").innerHTML = getProtocol().layers.map((layer) => `
+    <article class="layer-card">
+      <div>
+        <span class="${priorityClass(layer.priority)}">${layer.priority}</span>
+        <strong>${layer.name}</strong>
+      </div>
+      <p>${layer.api}</p>
+      <em class="${statusClass(layer.status)}">${layer.status}</em>
+    </article>
+  `).join("");
+
+  $("#component-matrix").innerHTML = getProtocol().components.map(([component, priority, status]) => `
+    <div class="component-row">
+      <strong>${component}</strong>
+      <span class="${priorityClass(priority)}">${priority}</span>
+      <em class="${statusClass(status)}">${status}</em>
+    </div>
+  `).join("");
+
+  $("#svip-list").innerHTML = getProtocol().svips.map((svip) => `
+    <div class="stack-item">
+      <div>
+        <strong>${svip.id}</strong>
+        <div class="permission-meta">${svip.title}</div>
+      </div>
+      <span>${svip.status}</span>
+    </div>
+  `).join("");
+}
+
+function advanceNextProtocolLayer() {
+  const plannedLayer = getProtocol().layers.find((layer) => layer.status === "Planned");
+  if (plannedLayer) {
+    plannedLayer.status = "Started";
+    const component = getProtocol().components.find(([name]) => name === plannedLayer.name || name.includes(plannedLayer.name.split(" ")[0]));
+    if (component && component[2] === "Planned") component[2] = "Started";
+    return plannedLayer.name;
+  }
+  return "All MVP protocol layers";
+}
+
+function registerProtocolRequest(request) {
+  getProtocol().svips.unshift({
+    id: `SVIP-${String(getProtocol().svips.length + 1).padStart(4, "0")}`,
+    title: `${request.category} access profile for ${request.requester}`,
+    status: "Draft"
+  });
 }
 
 function renderNetwork() {
@@ -599,6 +703,7 @@ document.addEventListener("click", async (event) => {
   if (target.dataset.issueToken) {
     const request = getNetwork().apiRequests.find((item) => item.id === target.dataset.issueToken);
     const token = issueNetworkToken(request);
+    registerProtocolRequest(request);
     await persist(`Issued scoped network token: ${token.id}`);
   }
 
@@ -730,4 +835,9 @@ $("#simulate-api-request").addEventListener("click", async () => {
     ...samples[Math.floor(Math.random() * samples.length)]
   });
   await persist("Received network API consent request");
+});
+
+$("#advance-protocol").addEventListener("click", async () => {
+  const layerName = advanceNextProtocolLayer();
+  await persist(`Advanced protocol layer: ${layerName}`);
 });

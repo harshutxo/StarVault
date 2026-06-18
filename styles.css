@@ -322,6 +322,119 @@ textarea:focus {
   box-shadow: var(--shadow);
 }
 
+.protocol-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.stack-band {
+  display: grid;
+  place-items: center;
+  min-height: 54px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  font-weight: 900;
+  text-align: center;
+}
+
+.stack-band.top {
+  background: #eef9f6;
+  border-color: #b8d8d4;
+}
+
+.stack-band.sdk {
+  background: #f6f8fb;
+}
+
+.stack-band.storage {
+  background: #fff8ec;
+  border-color: #ead1a7;
+}
+
+.stack-band.internet {
+  background: #182126;
+  color: #f7fbf8;
+}
+
+.layer-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.layer-card {
+  display: grid;
+  gap: 10px;
+  min-height: 158px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+.layer-card div {
+  display: grid;
+  gap: 6px;
+}
+
+.layer-card span,
+.layer-card em,
+.component-row span,
+.component-row em {
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.layer-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.component-table {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.component-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) 90px 90px;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfb;
+}
+
+.priority-critical,
+.status-planned {
+  color: #9d2f27;
+}
+
+.priority-high,
+.status-draft,
+.status-optional {
+  color: var(--gold);
+}
+
+.priority-medium,
+.priority-low {
+  color: var(--blue);
+}
+
+.status-started {
+  color: #0f5f43;
+}
+
 .metric {
   padding: 18px;
 }
@@ -648,6 +761,7 @@ textarea:focus {
   .map-grid,
   .network-grid,
   .network-hero,
+  .layer-grid,
   .record-grid,
   .finding-grid,
   .permission-list,
@@ -686,7 +800,12 @@ textarea:focus {
   .map-grid,
   .network-grid,
   .network-hero,
+  .layer-grid,
   .split-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .component-row {
     grid-template-columns: 1fr;
   }
 
