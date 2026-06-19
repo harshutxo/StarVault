@@ -94,6 +94,12 @@ npm install
 npm run dev
 ```
 
+GitHub Pages website:
+
+```text
+https://harshutxo.github.io/StarVault/
+```
+
 ## Product roadmap
 
 ### Phase 1: Personal Data Vault

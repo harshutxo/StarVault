@@ -1,8 +1,8 @@
 const docs = [
-  ["Protocol Architecture", "/docs/PROTOCOL.md"],
-  ["API Draft", "/docs/API.md"],
-  ["Roadmap", "/docs/ROADMAP.md"],
-  ["SVIP-0001", "/docs/SVIP-0001.md"]
+  ["Protocol Architecture", "https://github.com/harshutxo/StarVault/blob/master/docs/PROTOCOL.md"],
+  ["API Draft", "https://github.com/harshutxo/StarVault/blob/master/docs/API.md"],
+  ["Roadmap", "https://github.com/harshutxo/StarVault/blob/master/docs/ROADMAP.md"],
+  ["SVIP-0001", "https://github.com/harshutxo/StarVault/blob/master/docs/SVIP-0001.md"]
 ];
 
 export default function DocsPage() {
