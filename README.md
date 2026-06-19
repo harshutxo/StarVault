@@ -4,6 +4,8 @@ StarVault is a launch MVP for a personal data permission network: secure local e
 
 The long-term architecture is a platform with an open protocol. The StarVault Protocol (SVP) defines how identity, consent, access, audit, discovery, federation, and governance work. The StarVault platform provides reference apps, SDKs, developer tooling, hosted services, and documentation that make adoption easier.
 
+There is probably no final version of StarVault. The protocol should evolve through a stable core, public proposals, interoperable implementations, and long-term research.
+
 Positioning:
 
 > StarVault is the network layer for human consent in the AI economy.
@@ -65,6 +67,9 @@ The original static prototype still lives at the repository root and can be run 
 - [API draft](docs/API.md)
 - [Roadmap](docs/ROADMAP.md)
 - [v2 Developer Release](docs/V2_DEVELOPER_RELEASE.md)
+- [Long-term vision](docs/LONG_TERM_VISION.md)
+- [Governance](docs/GOVERNANCE.md)
+- [Research agenda](docs/RESEARCH.md)
 - [Public API surface](docs/OPENAPI.md)
 - [Design system](docs/DESIGN_SYSTEM.md)
 - [SVIP-0001: Core Consent Request Format](docs/SVIP-0001.md)

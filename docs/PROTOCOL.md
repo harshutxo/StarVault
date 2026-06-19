@@ -2,6 +2,8 @@
 
 StarVault should be treated as a platform with an open protocol. The protocol defines how identity, consent, access, audit, and federation work. The platform provides reference apps, SDKs, hosted services, developer tools, and documentation that make the protocol usable.
 
+SVP should be designed as a living protocol. The goal is not a final feature-complete product, but a stable interoperable core that can evolve through StarVault Improvement Proposals.
+
 ```text
 Applications
 AI | Healthcare | Finance | HR | Social
@@ -165,6 +167,8 @@ Proposal format:
 - `SVIP-0002`
 - `SVIP-0003`
 
+Long-term governance should allow outside developers, researchers, institutions, and independent node operators to contribute proposals and implementations.
+
 ## Roadmap
 
 ### Phase 1: Core Protocol MVP
@@ -211,3 +215,11 @@ Proposal format:
 - Protocol docs
 - SDK docs
 - Tutorials
+
+### 2035 Horizon: Internet Standard
+
+- StarVault Identity replaces platform-owned identities for participating apps.
+- Applications support `Connect with StarVault`.
+- AI agents receive temporary scoped access instead of permanent data copies.
+- StarVault nodes federate globally.
+- SVP becomes a standard language for identity, consent, permissions, audit, revocation, and AI context.

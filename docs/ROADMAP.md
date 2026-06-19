@@ -2,6 +2,8 @@
 
 StarVault should be built as a platform with an open protocol. The consumer vault proves the trust loop. The protocol and developer platform make it infrastructure.
 
+There is no final version of StarVault. The long-term model is a stable core protocol with continuous improvement, similar to the way internet infrastructure, Linux, and Kubernetes evolve.
+
 ## Roadmap Principles
 
 - Start with a user problem: people need to see, control, revoke, and understand data access.
@@ -147,6 +149,24 @@ Success metric:
 
 - Developers can build useful integrations without the core team.
 
+## 2035 Horizon: Internet Standard
+
+Objective: StarVault becomes infrastructure that applications support by default.
+
+Long-term outcomes:
+
+- Users have StarVault Identity instead of platform-owned identities.
+- Apps say `Connect with StarVault`.
+- AI agents request temporary context through StarVault.
+- Every AI agent has an auditable identity and capabilities.
+- Data marketplaces license access without selling ownership.
+- Thousands of StarVault nodes federate across universities, hospitals, governments, enterprises, and personal servers.
+- SVP becomes a standard way to express identity, consent, permissions, audit, revocation, and AI context access.
+
+Success metric:
+
+- People say `this app supports StarVault`, not `I use StarVault`.
+
 ## Next 90 Days
 
 | Period | Focus |
@@ -170,3 +190,14 @@ Success metric:
 8. Add docs for SDK usage.
 9. Add tests for encryption, consent, token, revoke, and scanner logic.
 10. Prepare hosted API prototype.
+
+## Long-Term Research Backlog
+
+1. Privacy-preserving AI.
+2. Confidential computing.
+3. Verifiable credentials.
+4. Zero-knowledge proofs.
+5. Secure multi-party computation.
+6. Personal AI governance.
+7. Policy-carrying data.
+8. Consent receipts.
