@@ -20,9 +20,11 @@ apps/
   admin
 services/
   identity
+  applications
   vault
   consent
   access
+  gateway
   audit
   policy
   notification
@@ -62,8 +64,11 @@ The original static prototype still lives at the repository root and can be run 
 - [Protocol architecture](docs/PROTOCOL.md)
 - [API draft](docs/API.md)
 - [Roadmap](docs/ROADMAP.md)
+- [v2 Developer Release](docs/V2_DEVELOPER_RELEASE.md)
+- [Public API surface](docs/OPENAPI.md)
 - [Design system](docs/DESIGN_SYSTEM.md)
 - [SVIP-0001: Core Consent Request Format](docs/SVIP-0001.md)
+- [SVP-0006: Data Capability Tokens](docs/SVP-0006-DATA-CAPABILITY-TOKENS.md)
 
 ## Run locally
 

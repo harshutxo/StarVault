@@ -32,3 +32,40 @@ export type ConsentRequest = {
   retention: string;
   revocationEndpoint: string;
 };
+
+export type ApplicationRegistration = {
+  name: string;
+  redirectUris: string[];
+  publicKey: string;
+  rateLimitTier: "sandbox" | "standard" | "enterprise";
+};
+
+export type AuthorizationRequest = {
+  clientId: string;
+  redirectUri: string;
+  responseType: "code";
+  state: string;
+  resourceType: string;
+  capabilities: DataCapability[];
+};
+
+export type DataCapability = {
+  action: "read" | "prove" | "license" | "write";
+  resource: string;
+  fields?: string[];
+  oneTime: boolean;
+  expiresInSeconds: number;
+  exportAllowed: boolean;
+  resharingAllowed: boolean;
+};
+
+export type CapabilityTokenClaims = {
+  iss: "starvault";
+  sub: string;
+  aud: string;
+  resource: string;
+  capabilities: DataCapability[];
+  purpose: string;
+  exp: number;
+  jti: string;
+};

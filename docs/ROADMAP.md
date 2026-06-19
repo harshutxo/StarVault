@@ -50,6 +50,37 @@ Success metric:
 
 - Three external demo apps can request, receive, and revoke scoped access.
 
+## v2.0: Developer Release
+
+Theme: from product to platform.
+
+v2 is the first version where a third-party developer can realistically integrate StarVault into their own application.
+
+Deliverables:
+
+- Application Registry
+- OAuth-like authorization flow
+- Data Capability Tokens
+- JavaScript SDK `requestAccess`
+- Python SDK `request_access`
+- Developer Portal
+- API Explorer / OpenAPI docs
+- User Dashboard control center
+- AI Gateway preview
+- Security Center
+- Admin metrics console
+
+Success criteria:
+
+| Metric | Target |
+| --- | --- |
+| Registered developers | 100 |
+| Test applications | 20 |
+| SDK downloads | 500 |
+| Successful consent flows | 10,000 |
+| API uptime | 99.9% |
+| Community SVIPs | 10 |
+
 ## Phase 3: AI Context Gateway
 
 Objective: make AI agents request context instead of silently ingesting user data.
