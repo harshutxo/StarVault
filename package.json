@@ -1,0 +1,20 @@
+{
+  "name": "starvault",
+  "version": "0.1.0",
+  "private": true,
+  "description": "StarVault is a platform with an open protocol for personal data ownership, consent, access, and audit.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w apps/website",
+    "build": "npm run build -w apps/website",
+    "lint": "npm run lint -w apps/website",
+    "typecheck": "npm run typecheck -w apps/website",
+    "prototype": "node server.mjs"
+  },
+  "engines": {
+    "node": ">=18.16.0"
+  }
+}

@@ -8,6 +8,38 @@ Positioning:
 
 > StarVault is the network layer for human consent in the AI economy.
 
+## StarVault v1.0 monorepo
+
+This repository is being reshaped into a production-style protocol company monorepo:
+
+```text
+apps/
+  website
+  dashboard
+  developer-portal
+  admin
+services/
+  identity
+  vault
+  consent
+  access
+  audit
+  policy
+  notification
+packages/
+  ui
+  protocol
+  protocol-spec
+  protocol-sdk-js
+  protocol-sdk-python
+  shared-types
+docs/
+whitepaper/
+infrastructure/
+```
+
+The original static prototype still lives at the repository root and can be run with `node server.mjs`. The new Next.js website lives in `apps/website`.
+
 ## MVP scope
 
 - Secure encrypted browser vault using WebCrypto AES-GCM and PBKDF2
@@ -30,9 +62,12 @@ Positioning:
 - [Protocol architecture](docs/PROTOCOL.md)
 - [API draft](docs/API.md)
 - [Roadmap](docs/ROADMAP.md)
+- [Design system](docs/DESIGN_SYSTEM.md)
 - [SVIP-0001: Core Consent Request Format](docs/SVIP-0001.md)
 
 ## Run locally
+
+Prototype:
 
 Serve the folder locally so browser encryption APIs run in a trusted localhost context.
 
@@ -41,6 +76,13 @@ node server.mjs
 ```
 
 Then visit `http://localhost:5173`.
+
+Next.js website:
+
+```powershell
+npm install
+npm run dev
+```
 
 ## Product roadmap
 

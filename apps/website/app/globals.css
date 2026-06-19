@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --midnight: #020617;
+  --deep-space: #08111f;
+  --electric-blue: #3b82f6;
+  --cyan: #22d3ee;
+  --starlight: #ffffff;
+}
+
+body {
+  background: var(--midnight);
+  color: var(--starlight);
+}
+
+::selection {
+  background: var(--electric-blue);
+  color: var(--starlight);
+}
+
+.starfield {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.18), transparent 28%),
+    radial-gradient(circle at 80% 10%, rgba(34, 211, 238, 0.14), transparent 26%),
+    linear-gradient(180deg, #020617 0%, #08111f 60%, #020617 100%);
+}
+
+.particle-field {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 0 16px rgba(34, 211, 238, 0.85);
+  animation: packet-drift 14s linear infinite;
+}
+
+.node-pulse {
+  animation: node-pulse 5s ease-in-out infinite;
+}
+
+.connection-draw {
+  stroke-dasharray: 320;
+  stroke-dashoffset: 320;
+  animation: draw-line 3.2s ease forwards;
+}
+
+@keyframes packet-drift {
+  from {
+    transform: translate3d(-10vw, 10vh, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  to {
+    transform: translate3d(110vw, -20vh, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes node-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.35));
+  }
+  50% {
+    filter: drop-shadow(0 0 22px rgba(34, 211, 238, 0.8));
+  }
+}
+
+@keyframes draw-line {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
