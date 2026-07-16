@@ -74,7 +74,9 @@ const seedState = {
       aiTrainingAllowed: false,
       status: "Waiting for user decision"
     },
-    ledger: []
+    ledger: [],
+    capabilities: [],
+    chainStatus: "No ledger events yet"
   },
   network: {
     nodeId: `SVN-${crypto.randomUUID().slice(0, 8)}`,
@@ -390,6 +392,8 @@ function migrateState() {
   state.barrier ??= structuredClone(seedState.barrier);
   state.barrier.currentRequest ??= structuredClone(seedState.barrier.currentRequest);
   state.barrier.ledger ??= [];
+  state.barrier.capabilities ??= [];
+  state.barrier.chainStatus ??= "No ledger events yet";
   state.network ??= structuredClone(seedState.network);
   state.network.nodeId ??= `SVN-${crypto.randomUUID().slice(0, 8)}`;
   state.network.apiRequests ??= [];
@@ -519,19 +523,19 @@ function hashText(value) {
   return `svh_${Math.abs(hash).toString(16).padStart(8, "0")}`;
 }
 
-function appendBarrierLedger(decision) {
+function appendBarrierLedger(decision, override = {}) {
   const request = getBarrier().currentRequest;
   const previousHash = getBarrier().ledger[0]?.eventHash ?? "genesis";
-  const tokenId = decision === "approved" ? `svt_${crypto.randomUUID().slice(0, 12)}` : null;
+  const tokenId = override.tokenId ?? (decision === "approved" ? `svt_${crypto.randomUUID().slice(0, 12)}` : null);
   const event = {
     id: `svtx_${crypto.randomUUID().slice(0, 12)}`,
     userHash: hashText(state.identity.email || state.identity.name || "local-user"),
-    requesterAppId: request.requesterAppId,
-    requesterName: request.requesterName,
-    resourceType: request.resourceType,
-    purpose: request.purpose,
-    scope: request.scope,
-    consentId: request.id,
+    requesterAppId: override.requesterAppId ?? request.requesterAppId,
+    requesterName: override.requesterName ?? request.requesterName,
+    resourceType: override.resourceType ?? request.resourceType,
+    purpose: override.purpose ?? request.purpose,
+    scope: override.scope ?? request.scope,
+    consentId: override.consentId ?? request.id,
     tokenId,
     decision,
     ledgerNetwork: "local hyperledger-style ledger",
@@ -542,6 +546,18 @@ function appendBarrierLedger(decision) {
   getBarrier().ledger.unshift(event);
   request.status = decision === "approved" ? "Approved and tokenized" : "Denied by user";
   if (tokenId) {
+    const capability = {
+      id: tokenId,
+      requesterAppId: request.requesterAppId,
+      requesterName: request.requesterName,
+      resourceType: request.resourceType,
+      purpose: request.purpose,
+      scope: request.scope,
+      status: "Active",
+      issuedAt: event.createdAt,
+      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 2).toISOString()
+    };
+    getBarrier().capabilities.unshift(capability);
     getTokens().unshift({
       id: tokenId,
       requester: request.requesterName,
@@ -552,6 +568,40 @@ function appendBarrierLedger(decision) {
     });
   }
   return event;
+}
+
+function revokeBarrierCapability(tokenId) {
+  const capability = getBarrier().capabilities.find((item) => item.id === tokenId);
+  if (!capability) return null;
+  capability.status = "Revoked";
+  getTokens()
+    .filter((token) => token.id === tokenId)
+    .forEach((token) => {
+      token.status = "Revoked";
+    });
+  return appendBarrierLedger("revoked", {
+    tokenId,
+    requesterAppId: capability.requesterAppId,
+    requesterName: capability.requesterName,
+    resourceType: capability.resourceType,
+    purpose: capability.purpose,
+    scope: capability.scope,
+    consentId: tokenId
+  });
+}
+
+function verifyBarrierLedger() {
+  const ledger = getBarrier().ledger;
+  if (!ledger.length) {
+    getBarrier().chainStatus = "No ledger events yet";
+    return getBarrier().chainStatus;
+  }
+  const valid = ledger.every((event, index) => {
+    const expectedPrevious = ledger[index + 1]?.eventHash ?? "genesis";
+    return event.previousHash === expectedPrevious;
+  });
+  getBarrier().chainStatus = valid ? "Ledger hash chain verified" : "Ledger chain mismatch detected";
+  return getBarrier().chainStatus;
 }
 
 function createNextBarrierRequest() {
@@ -626,6 +676,26 @@ function renderBarrier() {
       </div>
     `).join("")
     : `<div class="timeline-item"><strong>No data transactions yet</strong><span>Run a request</span></div>`;
+
+  $("#capability-list").innerHTML = getBarrier().capabilities.length
+    ? getBarrier().capabilities.map((capability) => `
+      <article class="permission-card">
+        <div class="permission-head">
+          <div>
+            <span class="permission-meta">${capability.status} until ${new Date(capability.expiresAt).toLocaleString()}</span>
+            <h3>${capability.requesterName}</h3>
+          </div>
+          <strong>${capability.resourceType}</strong>
+        </div>
+        <p><strong>Purpose:</strong> ${capability.purpose}</p>
+        <p><strong>Scope:</strong> ${capability.scope}</p>
+        <p><strong>Token:</strong> ${capability.id}</p>
+        <div class="card-actions">
+          ${capability.status === "Active" ? `<button class="danger-button" data-revoke-capability="${capability.id}">Revoke access</button>` : ""}
+        </div>
+      </article>
+    `).join("")
+    : `<article class="permission-card"><span class="permission-meta">${getBarrier().chainStatus}</span><h3>No active capabilities</h3><p>Approve a request to issue a temporary access grant.</p></article>`;
 }
 
 function renderProtocol() {
@@ -1003,6 +1073,11 @@ document.addEventListener("click", async (event) => {
     await persist(`Barrier denied data access: ${event.requesterName}`);
   }
 
+  if (target.dataset.revokeCapability) {
+    const event = revokeBarrierCapability(target.dataset.revokeCapability);
+    if (event) await persist(`Barrier revoked data access: ${event.requesterName}`);
+  }
+
   if (target.dataset.issueToken) {
     const request = getNetwork().apiRequests.find((item) => item.id === target.dataset.issueToken);
     const token = issueNetworkToken(request);
@@ -1154,4 +1229,9 @@ $("#complete-roadmap-item").addEventListener("click", async () => {
 $("#simulate-barrier").addEventListener("click", async () => {
   createNextBarrierRequest();
   await persist("Created new data access barrier request");
+});
+
+$("#verify-ledger").addEventListener("click", async () => {
+  const result = verifyBarrierLedger();
+  await persist(result);
 });

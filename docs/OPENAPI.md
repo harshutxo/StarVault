@@ -39,7 +39,9 @@ POST /consent/revoke/{consent_id}
 ```http
 POST /barrier/authorize
 POST /barrier/deny
+POST /barrier/revoke/{token_id}
 GET /barrier/transactions
+GET /barrier/verify
 ```
 
 The barrier is the mandatory control point between user data and external requesters. It checks consent, policy, capability limits, and ledger recording before any access is granted.

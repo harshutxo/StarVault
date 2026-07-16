@@ -77,6 +77,23 @@ def deny(payload: BarrierRequest) -> dict:
     return {"allowed": False, "ledger_event": event}
 
 
+@app.post("/barrier/revoke/{token_id}")
+def revoke(token_id: str, payload: BarrierRequest) -> dict:
+    event = append_ledger_event(payload, "revoked", token_id=token_id)
+    return {"revoked": True, "token_id": token_id, "ledger_event": event}
+
+
 @app.get("/barrier/transactions")
 def transactions() -> dict:
     return {"transactions": LEDGER_EVENTS}
+
+
+@app.get("/barrier/verify")
+def verify() -> dict:
+    valid = True
+    for index, event in enumerate(LEDGER_EVENTS):
+        expected_previous = LEDGER_EVENTS[index + 1]["event_hash"] if index + 1 < len(LEDGER_EVENTS) else None
+        if event["previous_event_hash"] != expected_previous:
+            valid = False
+            break
+    return {"valid": valid, "events": len(LEDGER_EVENTS)}

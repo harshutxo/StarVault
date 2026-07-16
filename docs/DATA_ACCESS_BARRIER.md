@@ -89,7 +89,9 @@ Local development:
 
 - `POST /barrier/authorize`
 - `POST /barrier/deny`
+- `POST /barrier/revoke/{token_id}`
 - `GET /barrier/transactions`
+- `GET /barrier/verify`
 
 Production direction:
 
