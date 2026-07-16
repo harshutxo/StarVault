@@ -61,6 +61,21 @@ const seedState = {
       expiresAt: "2026-07-05"
     }
   ],
+  barrier: {
+    currentRequest: {
+      id: crypto.randomUUID(),
+      requesterAppId: "sv_app_resumeai",
+      requesterName: "ResumeAI",
+      resourceType: "Resume",
+      purpose: "Candidate screening",
+      duration: "2 hours",
+      scope: "Read only: education and work history",
+      exportAllowed: false,
+      aiTrainingAllowed: false,
+      status: "Waiting for user decision"
+    },
+    ledger: []
+  },
   network: {
     nodeId: `SVN-${crypto.randomUUID().slice(0, 8)}`,
     apiRequests: [
@@ -355,10 +370,12 @@ function render() {
   $("#risk-count").textContent = state.findings.filter((item) => item.risk !== "Low").length;
   $("#extraction-count").textContent = extractionAttempts().length;
   $("#token-count").textContent = getTokens().filter((item) => item.status === "Active").length;
+  $("#ledger-count").textContent = getBarrier().ledger.length;
 
   renderVault();
   renderIdentity();
   renderPermissions();
+  renderBarrier();
   renderProtocol();
   renderRoadmap();
   renderNetwork();
@@ -370,6 +387,9 @@ function render() {
 }
 
 function migrateState() {
+  state.barrier ??= structuredClone(seedState.barrier);
+  state.barrier.currentRequest ??= structuredClone(seedState.barrier.currentRequest);
+  state.barrier.ledger ??= [];
   state.network ??= structuredClone(seedState.network);
   state.network.nodeId ??= `SVN-${crypto.randomUUID().slice(0, 8)}`;
   state.network.apiRequests ??= [];
@@ -395,6 +415,10 @@ function getNetwork() {
 
 function getTokens() {
   return getNetwork().tokens;
+}
+
+function getBarrier() {
+  return state.barrier;
 }
 
 function getProtocol() {
@@ -484,6 +508,124 @@ function renderPermissions() {
       </div>
     </article>
   `).join("");
+}
+
+function hashText(value) {
+  let hash = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash << 5) - hash + value.charCodeAt(index);
+    hash |= 0;
+  }
+  return `svh_${Math.abs(hash).toString(16).padStart(8, "0")}`;
+}
+
+function appendBarrierLedger(decision) {
+  const request = getBarrier().currentRequest;
+  const previousHash = getBarrier().ledger[0]?.eventHash ?? "genesis";
+  const tokenId = decision === "approved" ? `svt_${crypto.randomUUID().slice(0, 12)}` : null;
+  const event = {
+    id: `svtx_${crypto.randomUUID().slice(0, 12)}`,
+    userHash: hashText(state.identity.email || state.identity.name || "local-user"),
+    requesterAppId: request.requesterAppId,
+    requesterName: request.requesterName,
+    resourceType: request.resourceType,
+    purpose: request.purpose,
+    scope: request.scope,
+    consentId: request.id,
+    tokenId,
+    decision,
+    ledgerNetwork: "local hyperledger-style ledger",
+    previousHash,
+    createdAt: new Date().toISOString()
+  };
+  event.eventHash = hashText(JSON.stringify(event));
+  getBarrier().ledger.unshift(event);
+  request.status = decision === "approved" ? "Approved and tokenized" : "Denied by user";
+  if (tokenId) {
+    getTokens().unshift({
+      id: tokenId,
+      requester: request.requesterName,
+      scope: request.scope,
+      status: "Active",
+      issuedAt: event.createdAt,
+      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 2).toISOString()
+    });
+  }
+  return event;
+}
+
+function createNextBarrierRequest() {
+  const samples = [
+    {
+      requesterAppId: "sv_app_resumeai",
+      requesterName: "ResumeAI",
+      resourceType: "Resume",
+      purpose: "Candidate screening",
+      duration: "2 hours",
+      scope: "Read only: education and work history",
+      exportAllowed: false,
+      aiTrainingAllowed: false
+    },
+    {
+      requesterAppId: "sv_app_healthstudy",
+      requesterName: "Cancer Research Network",
+      resourceType: "Medical Records",
+      purpose: "Anonymized research eligibility",
+      duration: "24 hours",
+      scope: "Proof only: eligibility signals, no raw records",
+      exportAllowed: false,
+      aiTrainingAllowed: false
+    },
+    {
+      requesterAppId: "sv_app_modelforge",
+      requesterName: "ModelForge AI",
+      resourceType: "AI Memory",
+      purpose: "Training data collection",
+      duration: "30 days",
+      scope: "Broad read request",
+      exportAllowed: true,
+      aiTrainingAllowed: true
+    }
+  ];
+  getBarrier().currentRequest = {
+    id: crypto.randomUUID(),
+    status: "Waiting for user decision",
+    ...samples[Math.floor(Math.random() * samples.length)]
+  };
+}
+
+function renderBarrier() {
+  const request = getBarrier().currentRequest;
+  const risky = request.exportAllowed || request.aiTrainingAllowed;
+  $("#barrier-request").innerHTML = `
+    <article class="barrier-request-card">
+      <span>${request.status}</span>
+      <h3>${request.requesterName}</h3>
+      <p><strong>Resource:</strong> ${request.resourceType}</p>
+      <p><strong>Purpose:</strong> ${request.purpose}</p>
+      <p><strong>Duration:</strong> ${request.duration}</p>
+      <p><strong>Scope:</strong> ${request.scope}</p>
+      <p><strong>Export:</strong> ${request.exportAllowed ? "Requested" : "Blocked"}</p>
+      <p><strong>AI training:</strong> ${request.aiTrainingAllowed ? "Requested" : "Blocked"}</p>
+      <div class="card-actions">
+        <button class="approve-button" data-barrier-approve>Approve limited access</button>
+        <button class="danger-button" data-barrier-deny>${risky ? "Deny risky request" : "Deny"}</button>
+      </div>
+    </article>
+  `;
+
+  $("#ledger-list").innerHTML = getBarrier().ledger.length
+    ? getBarrier().ledger.map((event) => `
+      <div class="timeline-item ledger-item">
+        <div>
+          <strong>${event.decision.toUpperCase()} - ${event.requesterName}</strong>
+          <div class="permission-meta">${event.resourceType} | ${event.scope}</div>
+          <div class="permission-meta">tx ${event.id} | hash ${event.eventHash}</div>
+        </div>
+        <span>${new Date(event.createdAt).toLocaleString()}</span>
+      </div>
+    `).join("")
+    : `<div class="timeline-item"><strong>No data transactions yet</strong><span>Run a request</span></div>`;
 }
 
 function renderProtocol() {
@@ -851,6 +993,16 @@ document.addEventListener("click", async (event) => {
     await persist(`Approved permission: ${permission.company}`);
   }
 
+  if (target.hasAttribute("data-barrier-approve")) {
+    const event = appendBarrierLedger("approved");
+    await persist(`Barrier approved data access: ${event.requesterName}`);
+  }
+
+  if (target.hasAttribute("data-barrier-deny")) {
+    const event = appendBarrierLedger("denied");
+    await persist(`Barrier denied data access: ${event.requesterName}`);
+  }
+
   if (target.dataset.issueToken) {
     const request = getNetwork().apiRequests.find((item) => item.id === target.dataset.issueToken);
     const token = issueNetworkToken(request);
@@ -997,4 +1149,9 @@ $("#advance-protocol").addEventListener("click", async () => {
 $("#complete-roadmap-item").addEventListener("click", async () => {
   const milestone = completeNextRoadmapMilestone();
   await persist(`Completed roadmap milestone: ${milestone}`);
+});
+
+$("#simulate-barrier").addEventListener("click", async () => {
+  createNextBarrierRequest();
+  await persist("Created new data access barrier request");
 });

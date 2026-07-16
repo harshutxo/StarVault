@@ -63,6 +63,40 @@ Example token claims:
 }
 ```
 
+## Data Access Barrier
+
+```http
+POST /barrier/authorize
+POST /barrier/deny
+GET /barrier/transactions
+```
+
+Example barrier authorization request:
+
+```json
+{
+  "user_id": "user_123",
+  "requester_app_id": "sv_app_resumeai",
+  "requester_name": "ResumeAI",
+  "resource_type": "resume",
+  "purpose": "candidate screening",
+  "consent_id": "consent_123",
+  "capabilities": [
+    {
+      "action": "read",
+      "resource": "resume",
+      "fields": ["education", "work_history"],
+      "one_time": true,
+      "expires_in_seconds": 7200,
+      "export_allowed": false,
+      "resharing_allowed": false
+    }
+  ]
+}
+```
+
+The response includes a capability token when approved and a ledger event in all cases.
+
 ## Audit
 
 ```http

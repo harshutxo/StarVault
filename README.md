@@ -23,6 +23,7 @@ apps/
 services/
   identity
   applications
+  barrier
   vault
   consent
   access
@@ -64,6 +65,7 @@ The original static prototype still lives at the repository root and can be run 
 ## Protocol docs
 
 - [Protocol architecture](docs/PROTOCOL.md)
+- [Data Access Barrier](docs/DATA_ACCESS_BARRIER.md)
 - [API draft](docs/API.md)
 - [Roadmap](docs/ROADMAP.md)
 - [v2 Developer Release](docs/V2_DEVELOPER_RELEASE.md)

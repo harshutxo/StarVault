@@ -1,5 +1,6 @@
 export const protocolLayers = [
   { name: "Identity Layer", priority: "Critical", api: "POST /users, POST /login, GET /me" },
+  { name: "Data Access Barrier", priority: "Critical", api: "POST /barrier/authorize, POST /barrier/deny, GET /barrier/transactions" },
   { name: "Consent Layer", priority: "Critical", api: "POST /consent/request, POST /consent/approve, POST /consent/revoke" },
   { name: "Access Gateway", priority: "Critical", api: "POST /tokens/issue, POST /tokens/revoke, POST /tokens/introspect" },
   { name: "Vault Layer", priority: "Critical", api: "POST /vault/upload, GET /vault/resource, DELETE /vault/resource" },
@@ -68,4 +69,31 @@ export type CapabilityTokenClaims = {
   purpose: string;
   exp: number;
   jti: string;
+};
+
+export type DataAccessTransaction = {
+  transactionId: string;
+  userHash: string;
+  requesterAppId: string;
+  requesterName: string;
+  resourceType: string;
+  purpose: string;
+  capabilities: DataCapability[];
+  consentId: string;
+  tokenId?: string;
+  decision: "approved" | "denied" | "revoked" | "expired";
+  ledgerNetwork: "hyperledger-fabric" | "local-dev-ledger";
+  eventHash: string;
+  previousEventHash?: string;
+  createdAt: string;
+};
+
+export type BarrierAuthorizationRequest = {
+  userId: string;
+  requesterAppId: string;
+  requesterName: string;
+  resourceType: string;
+  purpose: string;
+  capabilities: DataCapability[];
+  consentId: string;
 };

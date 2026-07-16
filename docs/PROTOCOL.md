@@ -12,7 +12,7 @@ Developer SDKs
 Python | JavaScript | Java | Go | Swift
         |
 StarVault Protocol (SVP)
-Identity | Consent | Access Gateway | Vault | Policy
+Identity | Data Access Barrier | Consent | Access Gateway | Vault | Policy
 Audit | Discovery | Federation | Cryptography | Governance
         |
 Storage Providers
@@ -94,6 +94,26 @@ APIs:
 - `POST /consent/request`
 - `POST /consent/approve`
 - `POST /consent/revoke`
+
+### Data Access Barrier
+
+The barrier is the mandatory control point between user data and every application, AI agent, company, researcher, or institution.
+
+Responsibilities:
+
+- Receive data access requests
+- Verify consent
+- Evaluate policy
+- Enforce capability limits
+- Issue or deny temporary access
+- Record every decision to a tamper-evident ledger
+- Keep raw user data off the ledger
+
+APIs:
+
+- `POST /barrier/authorize`
+- `POST /barrier/deny`
+- `GET /barrier/transactions`
 
 ### Access Gateway
 

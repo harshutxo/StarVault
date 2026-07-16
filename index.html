@@ -21,6 +21,7 @@
           <button class="nav-item" data-view="vault">Vault</button>
           <button class="nav-item" data-view="identity">Identity</button>
           <button class="nav-item" data-view="permissions">Permissions</button>
+          <button class="nav-item" data-view="barrier">Data Barrier</button>
           <button class="nav-item" data-view="protocol">Protocol</button>
           <button class="nav-item" data-view="roadmap">Roadmap</button>
           <button class="nav-item" data-view="network">Network Layer</button>
@@ -95,6 +96,11 @@
                 <span>Network Tokens</span>
                 <strong id="token-count">0</strong>
                 <p>Scoped, revocable grants issued through StarVault.</p>
+              </article>
+              <article class="metric">
+                <span>Ledger Events</span>
+                <strong id="ledger-count">0</strong>
+                <p>Data transactions recorded for user visibility.</p>
               </article>
             </div>
 
@@ -183,6 +189,56 @@
               <p>New company requests stay pending until the user approves a purpose, scope, expiry date, and revocation right.</p>
             </div>
             <div id="permission-list" class="permission-list"></div>
+          </section>
+
+          <section class="view" id="barrier">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Data access barrier</p>
+                <h3>No party touches user data directly</h3>
+              </div>
+              <button id="simulate-barrier" class="primary-button">Simulate data request</button>
+            </div>
+
+            <section class="barrier-flow">
+              <article>
+                <span>User Data</span>
+                <strong>Encrypted Vault</strong>
+                <p>Identity, documents, health, finance, AI memory, and personal records.</p>
+              </article>
+              <article class="barrier-core">
+                <span>StarVault Barrier</span>
+                <strong>Consent + Policy + Token + Ledger</strong>
+                <p>Every access is checked, limited, recorded, and revocable.</p>
+              </article>
+              <article>
+                <span>Requester</span>
+                <strong>App / AI / Company</strong>
+                <p>Receives only the capability the user approved.</p>
+              </article>
+            </section>
+
+            <div class="network-grid">
+              <section class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <p class="eyebrow">Pending transaction</p>
+                    <h3>Request details</h3>
+                  </div>
+                </div>
+                <div id="barrier-request" class="stack-list"></div>
+              </section>
+
+              <section class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <p class="eyebrow">Hyperledger-style audit</p>
+                    <h3>Ledger events</h3>
+                  </div>
+                </div>
+                <div id="ledger-list" class="timeline"></div>
+              </section>
+            </div>
           </section>
 
           <section class="view" id="protocol">
