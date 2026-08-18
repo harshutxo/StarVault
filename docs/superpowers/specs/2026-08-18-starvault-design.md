@@ -1,8 +1,8 @@
 # StarVault — Design Specification
 
 **Date:** 2026-08-18
-**Status:** Draft for review
-**Supersedes:** the reliability-first architecture draft (active-active multi-region, HSM cluster, Hyperledger audit)
+**Status:** Draft for review — revised 2026-08-18 to the hybrid architecture (see §1.3)
+**Supersedes:** nothing. This refines the originating architecture document; §1.3 records exactly what is retained, narrowed, and deferred.
 
 ---
 
@@ -18,7 +18,18 @@ Three findings during design reframed the project.
 
 **The builder is one person, full-time, with no ops team.** Ten independently deployed services, a two-region active-active topology, and a self-operated HSM cluster are not operable by one person. 99.99% availability allows 52 minutes of downtime per year across every dependency in the request path.
 
-**India's regulatory framework prohibits the core architecture as originally conceived.** Under the DPDP Rules, a registered Consent Manager may not read the underlying personal data — that data remains with the Data Fiduciary — and may not simultaneously act as Data Fiduciary or Processor for the same individual. StarVault as drafted both stored data and managed consent. Registration additionally requires an Indian company with ₹2 crore minimum net worth, independent platform certification, and fit-and-proper directors, by 13 November 2026, with penalties up to ₹50 crore per instance for operating unregistered thereafter.
+**India's regulatory framework closes one specific route, not the architecture itself.** Under the
+DPDP Rules a registered Consent Manager may not read the underlying personal data — that data
+remains with the Data Fiduciary — and may not simultaneously act as Data Fiduciary or Processor
+for the same individual. StarVault as drafted does both, so it **cannot be a registered Consent
+Manager**. It can lawfully operate the same architecture as a plain **Data Fiduciary**, accepting
+full fiduciary liability and forgoing that title.
+
+Registration, if ever pursued, requires an Indian company with ₹2 crore minimum net worth,
+independent platform certification, and fit-and-proper directors, by 13 November 2026, with
+penalties up to ₹50 crore per instance for holding out as a Consent Manager unregistered after
+that date. This specification takes the Data Fiduciary route and does not use the Consent Manager
+title.
 
 ### 1.2 Scope decision
 
@@ -30,13 +41,46 @@ The differentiating property is that **StarVault's servers cannot decrypt user d
 
 > **Legal caveat.** This is architecture-relevant regulatory reading, not legal advice. Whether a genuinely zero-knowledge ciphertext host constitutes a "Data Processor" under DPDP is unsettled and must be reviewed by a privacy lawyer before operating with real users.
 
-### 1.3 Non-goals for v1
+### 1.3 Architecture alignment — the hybrid decision
+
+The originating document's **component model is retained**. What is dropped is only what one
+person cannot operate. Each of its eight components survives as a named unit with the same
+responsibility; several are deployed together rather than separately until measurement justifies
+splitting them.
+
+| Originating document | Status | Note |
+|---|---|---|
+| Identity Service | **Retained**, incl. DIDs | StarVault ID + DID + key pair, per the original §3 |
+| Consent Manager | **Retained** | System of record for grants and revocations (§3) |
+| Access Gateway | **Retained** | Sole entry point; verifies token and consent |
+| Policy Engine | **Retained, narrowed** | Metadata only — see the constraint below |
+| Encryption Service | **Retained** | Key hierarchy per §2; keys user-controlled |
+| Audit Ledger | **Retained**, built | Chain anchoring path kept (§4.6) |
+| Tokenization | **Retained** | Short-lived scoped tokens (§3.3) |
+| Notification Service | **Retained** | Access requests, expiries, anomalous patterns |
+| DIDs | **Retained** | §2.5 |
+| Go/Rust protocol layer | **Retained** | §5.4 |
+| Blockchain audit | **Retained** | Roots anchored, not events (§4.4, §4.6) |
+| Active-active, two regions | **Dropped for v1** | Not operable by one person (§5.3) |
+| 99.99% availability | **Dropped for v1** | ~99.5% single region |
+| Self-run HSM cluster | **Dropped for v1** | Managed KMS; threshold signing later |
+| Eight separate deployables | **Deferred** | Same components, fewer deployables (§5.1) |
+
+**The one substantive narrowing: the Policy Engine evaluates metadata, not content.** The
+originating document asserts both that "StarVault cannot read vault contents by design" and that
+the Policy Engine applies rules over data. Under end-to-end encryption those cannot both hold.
+This specification resolves the contradiction in favour of the encryption guarantee, so policy
+evaluates category, requester identity, purpose, time-of-day, expiry, and risk score — never
+content. The same constraint means a component that must see plaintext runs client-side (§5.2).
+
+### 1.4 Non-goals for v1
 
 - Registering or operating as a DPDP Consent Manager.
 - Multi-region active-active deployment; 99.99% availability.
 - Self-operated HSM cluster or threshold signing.
-- On-chain audit writes (Merkle roots may be anchored later).
-- Server-side policy evaluation over data content — impossible under E2EE by construction.
+- Deploying each component as its own service before measurement justifies it.
+- Server-side policy evaluation over data **content** — impossible under E2EE by construction.
+  Metadata policy is in scope.
 - Any claim that StarVault can control data after plaintext delivery (export or resharing restriction is not enforceable; see §8.1).
 - A data marketplace.
 
@@ -90,6 +134,25 @@ Adding a device requires the new device to display a public-key fingerprint, whi
 Without this check, the server can present its own public key as a "new device" and obtain the UMK, defeating end-to-end encryption entirely, with no user-visible signal. This verification step is what makes the zero-knowledge claim a fact rather than a promise, and it must never be bypassed for onboarding convenience.
 
 ---
+
+### 2.5 Decentralised identifiers
+
+Each user receives a StarVault ID and a **DID**, per the originating document's Identity Service.
+The DID is not a parallel key system: it is a resolvable, portable name for key material this
+specification already defines.
+
+- **Method:** `did:key` at enrollment, deriving directly from the user's Ed25519 signing key, with
+  `did:web` available for audiences that operate a domain.
+- **Verification material:** the Ed25519 device key (§2.1) is the DID's verification method. No new
+  key type and no change to the hierarchy.
+- **Audiences are DIDs.** The `audience` field of a Grant (§3.1) and of a ledger entry (§4.1) is a
+  DID rather than an opaque application identifier, which is what makes a grant portable and a
+  ledger entry independently attributable.
+- **Rotation:** rotating a device key issues a new verification method under the same DID. Ledger
+  entries reference the DID, so history survives rotation.
+
+DIDs deliberately carry **no personal data** and no vault content. Resolution is offline for
+`did:key`, so no registry is a runtime dependency of the request path.
 
 ## 3. Consent and revocation
 
@@ -163,32 +226,97 @@ Entries carry pseudonymous identifiers and hashes, never personal data. Erasing 
 
 ---
 
+### 4.6 Chain anchoring
+
+The originating document's blockchain audit path is retained, with one correction already stated
+in §4.4: **roots are anchored, not events.** Each epoch's Signed Tree Head is committed to the
+chain, so cost is one write per epoch regardless of access volume.
+
+`infrastructure/hyperledger/chaincode/` already contains a Fabric contract and is the intended
+target. Anchoring remains strictly off the request path (§4.3): if the chain is unreachable, STHs
+queue and nothing user-facing degrades. A published STH is valid evidence whether or not it has
+been anchored yet; anchoring adds an independent witness, it does not create the proof.
+
 ## 5. Architecture
 
 Under end-to-end encryption, **the access barrier cannot live in the cloud.** A server that cannot decrypt cannot inspect what it releases, so cloud-side content policy enforcement is theatre. Enforcement must sit where the plaintext is.
 
-### 5.1 Three tiers
+### 5.1 Components and deployment
 
-**StarVault Cloud — the blind tier.** Stores ciphertext blobs, the user's own wrapped-key material (device, recovery, and PRF wraps of the UMK), consent state, and the audit chain. Cannot decrypt anything by construction. One deployable, modular internally.
+All eight components of the originating document exist as named units with their original
+responsibilities. What changes is only **how many processes they are deployed as** — one, not
+eight — and **where two of them run**.
 
-**StarVault Agent — the local enforcement tier.** A process on the user's machine holding the device key. Decrypts, enforces grant scope and expiry, and records every access. Exposes **MCP**, the protocol AI agents already speak. The barrier becomes real because it sits adjacent to the plaintext.
+| Component | Runs | Responsibility |
+|---|---|---|
+| Identity | Cloud | StarVault ID, DID (§2.5), device registry, passkey auth |
+| Consent Manager | Cloud | Grants, revocations, consent receipts (§3) |
+| Access Gateway | Cloud | Sole entry point; verifies token, grant state, and revocation set |
+| Tokenization | Cloud | Short-lived scoped tokens (§3.3) |
+| Audit Ledger | Cloud | Hash chains, Merkle tree, STHs, anchoring (§4) |
+| Notification | Cloud | Access requests, expiries, anomalous access patterns |
+| Policy Engine | **Both** | Metadata rules evaluated cloud-side; scope enforcement over decrypted fields client-side |
+| Encryption | **Client** | Key hierarchy (§2). Runs where the plaintext is, because the cloud has no keys |
 
-**Vault clients.** The existing browser application, for managing grants, recovery, and reviewing access history.
+**Deployment:** one cloud service containing the cloud-side components as internal modules, plus
+one local binary. Splitting a component into its own deployable is a later operation justified by
+measurement, not an upfront commitment — the module boundaries are drawn so the split is
+mechanical.
 
-### 5.2 Repository mapping
+### 5.2 Why two components run client-side
+
+The originating document places the Access Gateway between applications and storage, and has it
+"request decryption." Under end-to-end encryption the cloud holds no keys, so nothing server-side
+can decrypt, and a server that cannot decrypt cannot enforce a rule about content.
+
+The Gateway therefore keeps its role as the sole entry point — it authenticates, checks grant
+state and the revocation set, issues tokens, and serves ciphertext — while decryption and
+field-level scope enforcement happen client-side, in the local agent. This is the minimum change
+that makes both the encryption guarantee and the Gateway's gatekeeping role true at once.
+
+The local agent exposes **MCP**, the protocol AI agents already speak, which is what makes the
+§1.2 agent-context scope reachable.
+
+### 5.3 Vault clients
+
+The existing browser application, for managing grants, recovery, and reviewing access history.
+
+### 5.4 Implementation languages
+
+The originating document specifies Go or Rust for the protocol layer, "where predictable latency
+under load matters most." That is retained, resolved as follows.
+
+| Tier | Language | Reason |
+|---|---|---|
+| Cloud service | **Go** | Satisfies the original requirement. Chosen over Rust for iteration speed and ecosystem fit with a one-person team; the latency argument is served equally by either. |
+| Local agent | **Go** | One toolchain, and it ships as a single static binary per platform — which matters when the user installs it themselves. |
+| Ledger reference implementation | **Python** | Already built and tested (`packages/ledger-python`). Retained deliberately as the *reference* implementation, not the production path. |
+| Vault clients | TypeScript / React | Unchanged from the originating document. |
+
+Keeping Python as the reference implementation is not a compromise: the conformance vectors in
+`packages/protocol-spec/vectors/` exist precisely so that a second implementation can prove
+byte-for-byte agreement. The Go ledger validates against vectors the Python one generated, which
+is a stronger correctness check than either implementation alone.
+
+**Neither Go nor Rust is currently installed on the development machine.** Installing Go is a
+prerequisite for slice 3.
+
+### 5.5 Repository mapping
 
 | Current | Becomes |
 |---|---|
-| `services/{identity,consent,audit,vault,applications}` | One deployable; names retained as internal modules |
-| `services/{barrier,gateway,access,policy}` | Moves client-side into the local agent |
-| `infrastructure/hyperledger` | Removed from v1; Merkle chain with published STHs instead |
-| *(new)* `apps/agent` | Local MCP server — the enforcement point |
-| Root prototype (`app.js`, `index.html`, `server.mjs`) | `apps/vault-web`; retained, it is the only working implementation |
-| `packages/protocol*` | Retained; becomes the specification and SDK |
+| `services/{identity,consent,gateway,access,audit,vault,applications,notification,policy}` | Go modules inside one deployable; directory names and responsibilities retained |
+| `services/barrier` | Superseded. Its gatekeeping role belongs to the Access Gateway; content enforcement moves client-side (§5.2) |
+| `infrastructure/hyperledger` | **Retained** as the anchoring target (§4.6, slice 5) |
+| *(new)* `apps/agent` | Local MCP binary — decryption and field-level enforcement |
+| Root prototype (`app.js`, `index.html`, `server.mjs`) | `apps/vault-web`; retained, it is the only working client implementation |
+| `packages/ledger-python` | Reference implementation and vector generator (§5.4) |
+| `packages/protocol*` | Retained; becomes the specification and SDKs |
 
-Ten deployables collapse to one cloud service and one local binary.
+Ten deployables collapse to one cloud service plus one local binary. The components themselves are
+all retained — this is a deployment change, not a removal (§1.3).
 
-### 5.3 Availability
+### 5.6 Availability
 
 Single region. Target ~99.5%. Managed Postgres and managed object storage. No design decision may foreclose a second region later, but multi-region is not built in v1.
 
@@ -318,10 +446,16 @@ This specification is larger than a single implementation plan. It decomposes in
 |---|---|---|
 | **1. Crypto core** | Key hierarchy (§2), recovery phrase and PRF wraps, device enrollment with fingerprint verification, property tests, recovery drill | A vault can be created, locked, unlocked, enrolled to a second device, and fully recovered from the phrase alone |
 | **2. Ledger** | Hash chain, RFC 8785 canonicalization, salted pseudonyms, Merkle tree, STH publication, adversarial test suite, published test vectors | Every field mutation is detected; an independent implementation verifies against the vectors |
-| **3. Cloud service** | Consent and grant model (§3), storage, revocation with fencing, fail-closed behaviour (§6.8), the single deployable of §5.2 | Grant, access, and revoke work end to end with correct consistency semantics |
-| **4. Local agent** | MCP server, scope enforcement, local decryption, audit emission, packaging | An AI agent reads granted context and nothing beyond it, with every access recorded |
+| **3. Cloud service** | Identity incl. DIDs (§2.5), Consent Manager, Access Gateway, Tokenization, Notification, metadata Policy Engine; storage, revocation with fencing, fail-closed behaviour (§6.8). **Go** (§5.4) | Grant, access, and revoke work end to end with correct consistency semantics |
+| **4. Local agent** | MCP server, scope enforcement, local decryption, audit emission, packaging. **Go** | An AI agent reads granted context and nothing beyond it, with every access recorded |
+| **5. Anchoring** | Epoch STH commitment to the Fabric chaincode in `infrastructure/hyperledger/` (§4.6) | A published STH is anchored and independently checkable; chain outage degrades nothing |
 
-Slices 1 and 2 are independent and could proceed in either order. Slice 3 depends on both; slice 4 depends on 3. The web client of §5.2 is upgraded incrementally alongside slices 1 and 3 rather than forming its own slice.
+Slices 1 and 2 are independent and could proceed in either order. Slice 3 depends on both; slice 4
+depends on 3; slice 5 depends on 2 and can run any time after it. The web client of §5.5 is
+upgraded incrementally alongside slices 1 and 3 rather than forming its own slice.
+
+Slice 3 requires a Go toolchain, which is not yet installed (§5.4). Slice 2's Python implementation
+stays as the reference; the Go ledger inside slice 3 validates against its published vectors.
 
 ---
 
@@ -330,11 +464,10 @@ Slices 1 and 2 are independent and could proceed in either order. Slice 3 depend
 | Item | Revisit when |
 |---|---|
 | Proxy re-encryption for offline direct access | Audited library available; demand demonstrated |
-| Merkle root anchoring to a public chain | Publication process stable |
 | Independent log witnesses | Third parties available to recruit |
 | Multi-region, active-active | Usage justifies the operational cost |
 | HSM cluster and threshold signing | Beyond managed KMS capacity |
-| Splitting the cloud service into microservices | A measured reason exists |
+| Splitting components into separate deployables | A measured reason exists (§5.1) |
 | DPDP Consent Manager registration | Net worth requirement met and the vault/consent-manager separation resolved |
 | Data marketplace | Consent and audit primitives proven in production |
 
@@ -345,5 +478,6 @@ Slices 1 and 2 are independent and could proceed in either order. Slice 3 depend
 1. **Legal review of the zero-knowledge host question** — whether an operator that cannot decrypt is a Data Processor under DPDP. Determines whether the current position holds.
 2. **Initial category registry contents** — the taxonomy is the portability surface and needs a concrete v1 list.
 3. **Local agent distribution** — packaging and update mechanism across macOS, Windows, and Linux.
-4. **STH publication venue** — where roots are published so third parties can gossip them.
-5. **Whether the browser prototype's PBKDF2 vault migrates to the new hierarchy or users re-enroll.** Existing prototype data uses a passphrase-derived key with no UMK; a migration path must be chosen before any real user data exists.
+4. **DID method for audiences** — `did:key` suffices for users; whether applications should be required to use `did:web` for accountability is unresolved (§2.5).
+5. **STH publication venue** — where roots are published so third parties can gossip them.
+6. **Whether the browser prototype's PBKDF2 vault migrates to the new hierarchy or users re-enroll.** Existing prototype data uses a passphrase-derived key with no UMK; a migration path must be chosen before any real user data exists.
