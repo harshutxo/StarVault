@@ -1,0 +1,87 @@
+{
+  "description": "Ledger entry hash chain vectors",
+  "domain": "starvault.ledger.entry.v1",
+  "genesis_prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "cases": [
+    {
+      "payload": {
+        "seq": 0,
+        "event_type": "access.granted",
+        "subject": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "audience": "app-0",
+        "scope": [
+          "health.labs:read"
+        ],
+        "decision": "allow",
+        "timestamp": "2026-08-18T10:00:00Z",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "grant_id": "grant-0",
+        "grant_version": 1,
+        "reason_code": null,
+        "notice_hash": null
+      },
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "entry_hash": "7d6f76a58cbd432c4cacdbdbf3288665f8650bf4decd5b44d8e53523fdcfb3df"
+    },
+    {
+      "payload": {
+        "seq": 1,
+        "event_type": "access.granted",
+        "subject": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "audience": "app-1",
+        "scope": [
+          "health.labs:read"
+        ],
+        "decision": "allow",
+        "timestamp": "2026-08-18T10:00:00Z",
+        "prev_hash": "7d6f76a58cbd432c4cacdbdbf3288665f8650bf4decd5b44d8e53523fdcfb3df",
+        "grant_id": "grant-1",
+        "grant_version": 1,
+        "reason_code": null,
+        "notice_hash": null
+      },
+      "prev_hash": "7d6f76a58cbd432c4cacdbdbf3288665f8650bf4decd5b44d8e53523fdcfb3df",
+      "entry_hash": "3eaa3882ac58f0ba3e5dfd7c27444edd044034cfd1d51615a51ad65d6bee3ec7"
+    },
+    {
+      "payload": {
+        "seq": 2,
+        "event_type": "access.granted",
+        "subject": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "audience": "app-2",
+        "scope": [
+          "health.labs:read"
+        ],
+        "decision": "allow",
+        "timestamp": "2026-08-18T10:00:00Z",
+        "prev_hash": "3eaa3882ac58f0ba3e5dfd7c27444edd044034cfd1d51615a51ad65d6bee3ec7",
+        "grant_id": "grant-2",
+        "grant_version": 1,
+        "reason_code": null,
+        "notice_hash": null
+      },
+      "prev_hash": "3eaa3882ac58f0ba3e5dfd7c27444edd044034cfd1d51615a51ad65d6bee3ec7",
+      "entry_hash": "787e3ffef7bf36780f5051c37fcfd61607d1068f4f614c0d7f953458f9952f3a"
+    },
+    {
+      "payload": {
+        "seq": 3,
+        "event_type": "access.granted",
+        "subject": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "audience": "app-3",
+        "scope": [
+          "health.labs:read"
+        ],
+        "decision": "allow",
+        "timestamp": "2026-08-18T10:00:00Z",
+        "prev_hash": "787e3ffef7bf36780f5051c37fcfd61607d1068f4f614c0d7f953458f9952f3a",
+        "grant_id": "grant-3",
+        "grant_version": 1,
+        "reason_code": null,
+        "notice_hash": null
+      },
+      "prev_hash": "787e3ffef7bf36780f5051c37fcfd61607d1068f4f614c0d7f953458f9952f3a",
+      "entry_hash": "80c35787c69204055cef10e62f6f459d91b2d38138ee80ffea36282d29f4a810"
+    }
+  ]
+}

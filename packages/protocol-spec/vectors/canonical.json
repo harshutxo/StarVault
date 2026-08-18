@@ -1,0 +1,63 @@
+{
+  "description": "RFC 8785 canonicalization vectors",
+  "cases": [
+    {
+      "input": {
+        "b": 1,
+        "a": 2
+      },
+      "expected": "{\"a\":2,\"b\":1}"
+    },
+    {
+      "input": {
+        "n": 1.0
+      },
+      "expected": "{\"n\":1}"
+    },
+    {
+      "input": {
+        "z": [
+          3,
+          1
+        ],
+        "a": {
+          "y": 1,
+          "x": 2
+        }
+      },
+      "expected": "{\"a\":{\"x\":2,\"y\":1},\"z\":[3,1]}"
+    },
+    {
+      "input": {
+        "unicode": "café",
+        "emoji": "🔐"
+      },
+      "expected": "{\"emoji\":\"🔐\",\"unicode\":\"café\"}"
+    },
+    {
+      "input": {
+        "nested": {
+          "empty_obj": {},
+          "empty_list": []
+        }
+      },
+      "expected": "{\"nested\":{\"empty_list\":[],\"empty_obj\":{}}}"
+    },
+    {
+      "input": {
+        "null": null,
+        "true": true,
+        "false": false
+      },
+      "expected": "{\"false\":false,\"null\":null,\"true\":true}"
+    },
+    {
+      "input": {
+        "negative": -1,
+        "zero": 0,
+        "large": 9007199254740991
+      },
+      "expected": "{\"large\":9007199254740991,\"negative\":-1,\"zero\":0}"
+    }
+  ]
+}
