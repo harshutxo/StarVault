@@ -5,6 +5,12 @@ from uuid import uuid4
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+# SUPERSEDED PROTOTYPE - DO NOT DEPLOY.
+# /barrier/verify does not verify: it checks linkage without recomputing
+# entry hashes, so tampering goes undetected. See services/barrier/README.md
+# and docs/superpowers/specs/2026-08-18-starvault-design.md sections 9.1-9.5.
+# Working implementation: packages/ledger-python.
+
 app = FastAPI(title="StarVault Data Access Barrier", version="0.1.0")
 
 LEDGER_EVENTS: list[dict] = []
