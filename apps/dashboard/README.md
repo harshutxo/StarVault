@@ -2,22 +2,30 @@
 
 User-facing application for identity, vault resources, consent requests, applications, audit history, settings, and security.
 
-Planned stack:
+## V2 Dashboard
+
+The first interactive StarVault V2 dashboard prototype is in [`prototype/`](./prototype/).
+
+Open `prototype/index.html` directly for the UI prototype. It demonstrates:
+
+- Personal data overview and vault health
+- Vault resource categories
+- Portable StarVault identity
+- Consent center with revoke controls
+- Audit timeline
+- Developer API surface preview
+- Responsive StarVault visual system
+
+## Planned production stack
 
 - Next.js
 - TypeScript
 - Tailwind CSS
 - React Query
-- Passkeys later
+- Passkeys / WebAuthn
+- PostgreSQL
+- Encrypted object storage
+- Signed consent and capability tokens
+- Append-only audit infrastructure
 
-## v2 Dashboard Areas
-
-- Identity profile and verification status
-- Public keys
-- Vault resources: resume, passport, degree, medical, AI memory, financial
-- Connected applications
-- Consent request inbox
-- Capability tokens and scopes
-- One-click revoke access
-- Audit timeline
-- Security center: devices, keys, sessions, suspicious activity
+The prototype intentionally contains no real secrets and no production credentials.
