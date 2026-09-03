@@ -65,6 +65,7 @@ The original static prototype still lives at the repository root and can be run 
 ## Protocol docs
 
 - [Protocol architecture](docs/PROTOCOL.md)
+- [Architecture gap: target spec vs. current repo](docs/ARCHITECTURE_GAP.md)
 - [Data Access Barrier](docs/DATA_ACCESS_BARRIER.md)
 - [API draft](docs/API.md)
 - [Roadmap](docs/ROADMAP.md)
