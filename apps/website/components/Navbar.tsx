@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 
 const links = [
@@ -16,7 +15,8 @@ export function Navbar() {
     <header className="sticky top-0 z-50 border-b border-white/10 bg-midnight/80 text-white backdrop-blur">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center">
-          <Image src="/logo.png" alt="StarVault" width={300} height={300} priority className="h-12 w-12" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/logo.png`} alt="StarVault" width={300} height={300} className="h-12 w-12" />
         </Link>
         <div className="hidden items-center gap-6 text-sm font-bold text-slate-300 md:flex">
           {links.map(([label, href]) => (
